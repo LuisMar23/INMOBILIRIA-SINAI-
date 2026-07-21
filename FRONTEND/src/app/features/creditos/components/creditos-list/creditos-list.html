@@ -1,0 +1,376 @@
+<div class="min-h-screen bg-slate-50 p-2 sm:p-4 md:p-6">
+  <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+    <!-- ══ HEADER ══════════════════════════════════════════ -->
+    <div
+      class="bg-emerald-500 px-4 sm:px-5 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+    >
+      <div class="flex items-center gap-3">
+        <fa-icon [icon]="faFileInvoiceDollar" class="text-white text-lg"></fa-icon>
+        <div>
+          <h1 class="font-bold text-white text-sm sm:text-base">Lista de Créditos</h1>
+          <p class="text-emerald-100 text-xs hidden sm:block">Seguimiento de cuotas y pagos</p>
+        </div>
+      </div>
+
+      <!-- acciones -->
+      <div class="flex items-center gap-2">
+        <button
+          (click)="onExport()"
+          class="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-white transition-colors"
+        >
+          <fa-icon [icon]="faFileExport" class="text-sm"></fa-icon>
+          <span class="hidden xs:inline">Export</span>
+        </button>
+        <button
+          (click)="reload()"
+          title="Recargar"
+          class="p-1.5 rounded-lg text-white bg-emerald-600/40 hover:bg-emerald-600/60 transition-colors"
+        >
+          <fa-icon [icon]="faArrowsRotate" [class.animate-spin]="svc.loading()" class="text-sm"></fa-icon>
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ FILTROS ══════════════════════════════════════════ -->
+    <div class="px-4 sm:px-5 py-3 bg-slate-50/70 border-b border-slate-100 flex flex-wrap gap-2">
+      <!-- búsqueda -->
+      <div class="relative w-full sm:w-60">
+        <fa-icon
+          [icon]="faMagnifyingGlass"
+          class="text-xs absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400"
+        ></fa-icon>
+        <input
+          type="text"
+          [(ngModel)]="searchInput"
+          (ngModelChange)="search$.next($event)"
+          placeholder="Buscar (mín. 2 caracteres)..."
+          class="pl-8 pr-3 py-2 text-sm border-2 border-slate-200 rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 bg-white placeholder:text-slate-400 transition-all"
+        />
+      </div>
+
+      <!-- ciudad -->
+      <select
+        [(ngModel)]="filtros.ciudad"
+        (ngModelChange)="onFiltroChange()"
+        class="px-3 py-2 text-sm border-2 border-slate-200 rounded-lg bg-white text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all w-full sm:w-auto"
+      >
+        <option value="">Todas las ciudades</option>
+        <option value="BERMEJO">Bermejo</option>
+        <option value="TARIJA">Tarija</option>
+        <option value="YACUIBA">Yacuiba</option>
+      </select>
+    </div>
+
+    <!-- ══ ESTADOS COMUNES (loading / error / vacío) ══════════ -->
+    @if (svc.loading()) {
+      <div class="p-4 space-y-2">
+        @for (i of [1, 2, 3, 4, 5]; track i) {
+          <div class="h-10 bg-slate-100 rounded animate-pulse w-full"></div>
+        }
+      </div>
+    }
+
+    @if (!svc.loading() && svc.error()) {
+      <div class="px-4 py-10 text-center">
+        <div class="flex flex-col items-center gap-2 text-red-400">
+          <fa-icon [icon]="faTriangleExclamation" class="text-3xl opacity-50"></fa-icon>
+          <p class="text-sm font-medium">{{ svc.error() }}</p>
+          <button (click)="reload()" class="text-xs text-emerald-600 hover:underline font-medium mt-1">
+            Reintentar
+          </button>
+        </div>
+      </div>
+    }
+
+    @if (!svc.loading() && !svc.error() && svc.creditos().length === 0) {
+      <div class="px-4 py-14 text-center">
+        <div class="flex flex-col items-center gap-2 text-slate-300">
+          <fa-icon [icon]="faFileLines" class="text-4xl"></fa-icon>
+          <p class="text-sm font-medium text-slate-400">Sin créditos registrados</p>
+        </div>
+      </div>
+    }
+
+    @if (!svc.loading() && !svc.error() && svc.creditos().length > 0) {
+      <!-- ══ TABLA (desktop / lg+) ═══════════════════════════ -->
+      <div class="hidden lg:block overflow-x-auto">
+        <table class="w-full text-sm border-collapse">
+          <thead>
+            <tr class="border-b border-slate-100 bg-slate-50/50">
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400 w-12">
+                N°
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <button class="flex items-center gap-1 hover:text-slate-600 transition-colors" (click)="toggleSort('cliente')">
+                  <fa-icon [icon]="faUser" class="text-xs"></fa-icon>
+                  Cliente
+                  <fa-icon [icon]="faSort" class="text-[10px] opacity-50"></fa-icon>
+                </button>
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <div class="flex items-center gap-1">
+                  <fa-icon [icon]="faIdCard" class="text-xs"></fa-icon>
+                  Lote-Mz
+                </div>
+              </th>
+              <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <button class="flex items-center gap-1 hover:text-slate-600 transition-colors" (click)="toggleSort('fecha')">
+                  <fa-icon [icon]="faCalendarDays" class="text-xs"></fa-icon>
+                  Sig. CP.
+                  <fa-icon [icon]="faSort" class="text-[10px] opacity-50"></fa-icon>
+                </button>
+              </th>
+              <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <div class="flex items-center justify-end gap-1">
+                  <fa-icon [icon]="faCoins" class="text-xs"></fa-icon>
+                  M.Cuota P.
+                </div>
+              </th>
+              <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <div class="flex items-center justify-end gap-1">
+                  <fa-icon [icon]="faScaleBalanced" class="text-xs"></fa-icon>
+                  M. Restante
+                </div>
+              </th>
+              <th class="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-slate-400">
+                <div class="flex items-center justify-end gap-1">
+                  <fa-icon [icon]="faBuilding" class="text-xs"></fa-icon>
+                  Total Venta
+                </div>
+              </th>
+              <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Crongrma
+              </th>
+              <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">
+                Pagaré
+              </th>
+              <th class="px-4 py-3 text-center text-xs font-semibold uppercase tracking-wider text-slate-400">
+                H.Pagos
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            @for (c of sortedCreditos(); track c.ventaId; let i = $index) {
+              <tr class="border-b border-slate-50 hover:bg-emerald-50/40 transition-colors group">
+                <td class="px-4 py-3 text-slate-400 text-xs font-medium">{{ offset() + i + 1 }}</td>
+
+                <td class="px-4 py-3">
+                  <span class="font-medium text-slate-700 group-hover:text-emerald-700 transition-colors">
+                    {{ c.cliente }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-3 text-slate-500 font-medium text-xs">
+                  {{ loteMzCorto(c.numeroLote, c.nombreManzano) }}
+                </td>
+
+                <td class="px-4 py-3">
+                  @if (c.siguienteCuota) {
+                    <div class="flex items-center gap-1.5">
+                      <span
+                        [class]="badgeFechaClass(c)"
+                        class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold whitespace-nowrap"
+                      >
+                        {{ fechaLocal(c.siguienteCuota.fecha) | date: 'dd/MM/yyyy' }}
+                      </span>
+                      @if (c.siguienteCuota.cuotasVencidas > 0) {
+                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                          {{ c.siguienteCuota.cuotasVencidas }}
+                        </span>
+                      } @else {
+                        <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-500 text-[10px] font-bold">
+                          0
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <span class="text-slate-300 text-xs">—</span>
+                  }
+                </td>
+
+                <td class="px-4 py-3 text-right">
+                  <span class="font-semibold text-violet-600 text-xs whitespace-nowrap">
+                    BS {{ c.montoCuotaPendiente | number: '1.2-2' }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-3 text-right">
+                  <span class="font-semibold text-cyan-600 text-xs whitespace-nowrap">
+                    BS {{ c.montoRestante | number: '1.2-2' }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-3 text-right">
+                  <span class="font-bold text-slate-700 text-xs whitespace-nowrap">
+                    BS {{ c.totalVenta | number: '1.2-2' }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-3 text-center">
+                  <button
+                    (click)="onCronograma(c)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-200 text-slate-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                  >
+                    <fa-icon [icon]="faCalendarDays" class="text-xs"></fa-icon>
+                    Crong
+                  </button>
+                </td>
+
+                <td class="px-4 py-3 text-center">
+                  <button
+                    (click)="onPagare(c)"
+                    class="inline-flex items-center justify-center px-2.5 py-1 rounded-md border border-slate-200 text-slate-400 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+                  >
+                    <fa-icon [icon]="faFileLines" class="text-xs"></fa-icon>
+                  </button>
+                </td>
+
+                <td class="px-4 py-3 text-center">
+                  <button
+                    (click)="onHistorial(c)"
+                    class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-200 text-slate-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-all"
+                  >
+                    <fa-icon [icon]="faClockRotateLeft" class="text-xs"></fa-icon>
+                    H.Pagos
+                  </button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ══ TARJETAS (mobile / <lg) ═════════════════════════ -->
+      <div class="lg:hidden divide-y divide-slate-100">
+        @for (c of sortedCreditos(); track c.ventaId; let i = $index) {
+          <div class="p-4 space-y-3">
+            <!-- cabecera: cliente + índice -->
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-2 min-w-0">
+                <fa-icon [icon]="faUser" class="text-slate-400 text-xs flex-shrink-0"></fa-icon>
+                <span class="font-semibold text-slate-700 text-sm truncate">{{ c.cliente }}</span>
+              </div>
+              <span class="text-xs text-slate-400 flex-shrink-0">#{{ offset() + i + 1 }}</span>
+            </div>
+
+            <!-- lote / siguiente cuota -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="inline-flex items-center gap-1 text-slate-500 font-medium">
+                <fa-icon [icon]="faIdCard" class="text-[11px]"></fa-icon>
+                {{ loteMzCorto(c.numeroLote, c.nombreManzano) }}
+              </span>
+
+              @if (c.siguienteCuota) {
+                <span
+                  [class]="badgeFechaClass(c)"
+                  class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold whitespace-nowrap"
+                >
+                  {{ fechaLocal(c.siguienteCuota.fecha) | date: 'dd/MM/yyyy' }}
+                </span>
+                @if (c.siguienteCuota.cuotasVencidas > 0) {
+                  <span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                    {{ c.siguienteCuota.cuotasVencidas }}
+                  </span>
+                }
+              }
+            </div>
+
+            <!-- montos -->
+            <div class="grid grid-cols-3 gap-2 text-center bg-slate-50 rounded-lg py-2">
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                  <fa-icon [icon]="faCoins"></fa-icon> Cuota P.
+                </span>
+                <span class="text-xs font-semibold text-violet-600">{{ c.montoCuotaPendiente | number: '1.2-2' }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5 border-x border-slate-200">
+                <span class="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                  <fa-icon [icon]="faScaleBalanced"></fa-icon> Restante
+                </span>
+                <span class="text-xs font-semibold text-cyan-600">{{ c.montoRestante | number: '1.2-2' }}</span>
+              </div>
+              <div class="flex flex-col gap-0.5">
+                <span class="text-[10px] text-slate-400 flex items-center justify-center gap-1">
+                  <fa-icon [icon]="faBuilding"></fa-icon> Total
+                </span>
+                <span class="text-xs font-bold text-slate-700">{{ c.totalVenta | number: '1.2-2' }}</span>
+              </div>
+            </div>
+
+            <!-- acciones -->
+            <div class="flex gap-2">
+              <button
+                (click)="onCronograma(c)"
+                class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium border border-slate-200 text-slate-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+              >
+                <fa-icon [icon]="faCalendarDays"></fa-icon> Crong
+              </button>
+              <button
+                (click)="onPagare(c)"
+                class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium border border-slate-200 text-slate-500 hover:border-emerald-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
+              >
+                <fa-icon [icon]="faFileLines"></fa-icon> Pagaré
+              </button>
+              <button
+                (click)="onHistorial(c)"
+                class="flex-1 inline-flex items-center justify-center gap-1 px-2 py-1.5 rounded-md text-xs font-medium border border-slate-200 text-slate-500 hover:border-teal-400 hover:text-teal-600 hover:bg-teal-50 transition-all"
+              >
+                <fa-icon [icon]="faClockRotateLeft"></fa-icon> Pagos
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- ══ FOOTER / PAGINACIÓN ══════════════════════════════ -->
+    <div
+      class="px-4 sm:px-5 py-3 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-2 bg-slate-50/40"
+    >
+      <p class="text-xs text-slate-400 text-center sm:text-left">
+        @if (svc.totalItems() > 0) {
+          Mostrando el {{ offset() + 1 }} al
+          {{ [offset() + svc.pagination().limit, svc.totalItems()] }}
+          de {{ svc.totalItems() }} registros
+        } @else {
+          Sin registros
+        }
+      </p>
+
+      <div class="flex items-center gap-1">
+        <button
+          (click)="goPage(svc.currentPage() - 1)"
+          [disabled]="svc.currentPage() <= 1"
+          class="w-7 h-7 flex items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <fa-icon [icon]="faChevronLeft" class="text-xs"></fa-icon>
+        </button>
+
+        @for (p of pageNumbers(); track p) {
+          <button
+            (click)="p !== '...' && goPage(+p)"
+            [disabled]="p === '...'"
+            [class]="
+              p === svc.currentPage()
+                ? 'w-7 h-7 rounded-md bg-emerald-600 text-white text-xs font-bold shadow-sm'
+                : p === '...'
+                  ? 'w-7 h-7 text-slate-400 text-xs cursor-default'
+                  : 'w-7 h-7 rounded-md border border-slate-200 text-slate-500 text-xs hover:bg-white transition-colors'
+            "
+          >
+            {{ p }}
+          </button>
+        }
+
+        <button
+          (click)="goPage(svc.currentPage() + 1)"
+          [disabled]="svc.currentPage() >= svc.totalPages()"
+          class="w-7 h-7 flex items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+        >
+          <fa-icon [icon]="faChevronRight" class="text-xs"></fa-icon>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

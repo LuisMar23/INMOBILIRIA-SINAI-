@@ -1,0 +1,304 @@
+<!-- promocion-list.html -->
+<div class="min-h-screen py-12 bg-white relative overflow-hidden">
+  <div class="absolute inset-0 overflow-hidden">
+    <div class="absolute -top-40 -right-40 w-80 h-80 bg-emerald-50 rounded-full"></div>
+    <div class="absolute -bottom-40 -left-40 w-80 h-80 bg-teal-50 rounded-full"></div>
+    <div class="absolute inset-0 overflow-hidden">
+      <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-20">
+        <img src="assets/logoSinai.jpg" alt="Logo" class="w-96 h-96 object-contain">
+      </div>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 relative z-10">
+    <div class="mb-16 text-center animate-fade-in-up">
+      <div
+        class="inline-flex items-center gap-3 bg-gradient-to-r from-emerald-500 to-teal-500 px-6 py-3 rounded-full mb-6 shadow-lg animate-pulse-gentle"
+      >
+        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+          <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
+        </svg>
+        <span class="font-bold text-lg text-white tracking-wider">OFERTAS ESPECIALES</span>
+      </div>
+      <h1
+        class="text-5xl md:text-6xl font-bold text-gray-900 mb-6 tracking-tight animate-fade-in-up"
+        style="animation-delay: 0.1s"
+      >
+        Lotes en
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600"
+          >Promoción</span
+        >
+      </h1>
+      <p
+        class="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed animate-fade-in-up"
+        style="animation-delay: 0.2s"
+      >
+        Aprovecha estos precios increíbles por tiempo limitado. Oportunidades únicas con descuentos
+        exclusivos.
+      </p>
+      <div
+        class="w-32 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full mx-auto mt-6 animate-expand-width"
+        style="animation-delay: 0.3s"
+      ></div>
+    </div>
+
+    <div
+      class="mb-12 flex flex-wrap items-center justify-between gap-6 animate-fade-in-up"
+      style="animation-delay: 0.4s"
+    >
+      <div
+        class="flex items-center gap-3 bg-white text-emerald-700 px-5 py-3 rounded-xl shadow-lg border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+      >
+        <svg class="w-5 h-5 text-emerald-500" fill="currentColor" viewBox="0 0 24 24">
+          <path
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
+          />
+        </svg>
+        <span class="font-semibold">{{ lotesPromocion().length }} ofertas disponibles</span>
+      </div>
+
+      <div class="relative group">
+        <select
+          class="bg-white border border-gray-300 text-gray-700 rounded-xl px-5 py-3 focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 cursor-pointer shadow-sm transition-all duration-300 appearance-none pr-10 hover:border-emerald-400 hover:shadow-md"
+        >
+          <option>Ordenar por: Mayor descuento</option>
+          <option>Ordenar por: Menor precio</option>
+          <option>Ordenar por: Mayor superficie</option>
+        </select>
+        <div
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none text-emerald-500 transition-transform group-hover:translate-y-0"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      @for (lote of lotesPromocion(); track lote.uuid; let i = $index) {
+        @let promocionActiva = lote.LotePromocion?.[0]?.promocion;
+        @let fechaFin = promocionActiva?.fechaFin;
+        
+        <div
+          class="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 border border-gray-100 animate-fade-in-up"
+          [style.animation-delay]="'0.' + (i + 5) + 's'"
+        >
+          <app-promocion-badge [promocion]="promocionActiva || null" />
+
+          <div class="relative h-64 overflow-hidden bg-gray-100">
+            @if (lote.archivos && lote.archivos.length > 0) {
+              <img
+                [src]="urlServer + lote.archivos[0].urlArchivo"
+                [alt]="lote.numeroLote"
+                class="w-full h-full object-cover transform group-hover:scale-110 transition-all duration-700 ease-out"
+              />
+            } @else {
+              <div
+                class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200"
+              >
+                <svg
+                  class="w-20 h-20 text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+              </div>
+            }
+
+            <div
+              class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500"
+            ></div>
+
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"
+            ></div>
+
+            <div
+              class="absolute bottom-4 left-4 transform group-hover:scale-105 transition-transform duration-300"
+            >
+              <div
+                class="bg-white/95 backdrop-blur-sm px-4 py-2 rounded-lg border-2 border-emerald-500 shadow-lg"
+              >
+                <span class="font-bold text-emerald-700">Lote {{ lote.numeroLote }}</span>
+              </div>
+            </div>
+
+            @if (fechaFin) {
+              <div
+                class="absolute bottom-4 right-4 bg-gradient-to-r from-red-500 to-orange-500 text-white px-3 py-2 rounded-lg shadow-lg transform group-hover:scale-105 transition-transform duration-300"
+              >
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                      d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"
+                    />
+                  </svg>
+                  <span class="text-xs font-semibold">
+                    Válido hasta {{ fechaFin | date:'dd/MM/yyyy' }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="p-6">
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center text-emerald-600 text-sm font-semibold">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+                </svg>
+                {{ lote.ciudad }}
+              </div>
+              <div class="flex items-center text-teal-600 text-sm font-semibold">
+                <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <path
+                    d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"
+                  />
+                </svg>
+                {{ lote.superficieM2 }} m²
+              </div>
+            </div>
+
+            @if (lote.descripcion) {
+              <p class="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
+                {{ lote.descripcion }}
+              </p>
+            }
+
+            @if (promocionActiva) {
+              <app-precio-promocion
+                [precioOriginal]="lote.precioBase"
+                [precioConDescuento]="lote.precioConDescuento"
+                [descuento]="promocionActiva.descuento"
+              />
+            }
+
+            <a
+              [routerLink]="['/lotes', lote.uuid]"
+              class="mt-6 w-full inline-flex items-center justify-center bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg group/btn relative overflow-hidden"
+            >
+              <span class="relative z-10">Ver detalles</span>
+              <svg
+                class="w-5 h-5 ml-2 relative z-10 transform group-hover/btn:translate-x-1 transition-transform duration-300"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                />
+              </svg>
+              <div
+                class="absolute inset-0 bg-gradient-to-r from-emerald-600 to-teal-600 transform translate-y-full group-hover/btn:translate-y-0 transition-transform duration-300"
+              ></div>
+            </a>
+          </div>
+        </div>
+      }
+    </div>
+
+    @if (lotesPromocion().length === 0) {
+      <div class="text-center py-20 animate-fade-in-up">
+        <div
+          class="inline-flex items-center justify-center w-32 h-32 bg-gray-100 rounded-full mb-6 mx-auto border border-gray-200"
+        >
+          <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+            />
+          </svg>
+        </div>
+        <h3 class="text-2xl font-bold text-gray-900 mb-3">No hay promociones activas</h3>
+        <p class="text-gray-600 max-w-md mx-auto">
+          Actualmente no tenemos ofertas especiales disponibles. Vuelve pronto para descubrir nuestras
+          próximas promociones exclusivas.
+        </p>
+      </div>
+    }
+  </div>
+</div>
+
+<style>
+  @keyframes fade-in-up {
+    0% {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes expand-width {
+    0% {
+      width: 0;
+    }
+    100% {
+      width: 8rem;
+    }
+  }
+
+  @keyframes pulse-gentle {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.9;
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fade-in-up 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  .animate-expand-width {
+    animation: expand-width 0.8s ease-out forwards;
+    animation-delay: 0.3s;
+  }
+
+  .animate-pulse-gentle {
+    animation: pulse-gentle 3s ease-in-out infinite;
+  }
+
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .bg-emerald-50 {
+    background-color: #ecfdf5;
+  }
+
+  .bg-teal-50 {
+    background-color: #f0fdfa;
+  }
+
+  .bg-cyan-50 {
+    background-color: #ecfeff;
+  }
+</style>

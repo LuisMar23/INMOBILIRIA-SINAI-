@@ -1,0 +1,701 @@
+<!-- movimientos-list.html -->
+<div
+  class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8"
+>
+  <div class="max-w-full mx-auto">
+    <!-- Header -->
+    <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <svg
+            class="w-8 h-8 sm:w-10 sm:h-10 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+            />
+          </svg>
+          <div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
+              Movimientos de Caja
+            </h1>
+            <p class="text-emerald-100 text-xs sm:text-sm mt-1">
+              Registro detallado de transacciones
+            </p>
+          </div>
+        </div>
+        <div class="flex gap-3 w-full sm:w-auto">
+          <button
+            (click)="generarPDFDetallado()"
+            [disabled]="allMovimientos().length === 0 || cargando()"
+            class="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-3 rounded-lg transition-all duration-200 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Generar reporte detallado"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+              />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 11v6m-3-3h6"
+              />
+            </svg>
+            PDF Detallado
+          </button>
+
+          <button
+            (click)="generarPDFResumen()"
+            [disabled]="allMovimientos().length === 0 || cargando()"
+            class="flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-3 rounded-lg transition-all duration-200 font-semibold text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            title="Generar resumen"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+              />
+            </svg>
+            PDF Resumen
+          </button>
+
+          <a
+            [routerLink]="['/caja']"
+            class="flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-3 rounded-lg transition-all duration-200 backdrop-blur-sm font-semibold text-sm"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Volver
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+      <!-- Stats Cards (sin cambios) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <!-- ... tus cards existentes ... -->
+        <div
+          class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-4 sm:p-6 shadow-lg"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-semibold">Total Ingresos</p>
+              <p class="text-xl sm:text-2xl font-bold">
+                {{ getTotalIngresos() | number: '1.0-2' }} Bs.
+              </p>
+              @if (hayFiltrosActivos()) {
+                <p class="text-xs text-green-100 mt-1">Según filtros activos</p>
+              }
+            </div>
+            <svg
+              class="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-80"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 11l5-5m0 0l5 5m-5-5v12"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div
+          class="bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl p-4 sm:p-6 shadow-lg"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-semibold">Total Egresos</p>
+              <p class="text-xl sm:text-2xl font-bold">
+                {{ getTotalEgresos() | number: '1.0-2' }} Bs.
+              </p>
+              @if (hayFiltrosActivos()) {
+                <p class="text-xs text-red-100 mt-1">Según filtros activos</p>
+              }
+            </div>
+            <svg
+              class="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-80"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 13l-5 5m0 0l-5-5m5 5V6"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div
+          class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-4 sm:p-6 shadow-lg"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-semibold">Balance</p>
+              <p class="text-xl sm:text-2xl font-bold">{{ getBalance() | number: '1.0-2' }} Bs.</p>
+            </div>
+            <svg
+              class="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-80"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <div
+          class="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl p-4 sm:p-6 shadow-lg"
+        >
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-semibold">Transacciones</p>
+              <p class="text-xl sm:text-2xl font-bold">{{ total() }}</p>
+            </div>
+            <svg
+              class="w-6 h-6 sm:w-8 sm:h-8 text-white opacity-80"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"
+              />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filtros (sin cambios) -->
+      <div class="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-200">
+        <!-- ... tus filtros existentes ... -->
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-semibold text-gray-700 flex items-center gap-2">
+            <svg
+              class="w-4 h-4 text-emerald-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"
+              />
+            </svg>
+            Filtros
+            @if (hayFiltrosActivos()) {
+              <span class="bg-emerald-500 text-white text-xs px-2 py-0.5 rounded-full"
+                >Activos</span
+              >
+            }
+          </h3>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <!-- Mes -->
+          <select
+            [ngModel]="filtroMes()"
+            (ngModelChange)="filtroMes.set($event ? +$event : null)"
+            class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          >
+            <option [ngValue]="null">Todos los meses</option>
+            @for (mes of meses; track mes.value) {
+              <option [ngValue]="mes.value">{{ mes.label }}</option>
+            }
+          </select>
+          <!-- Año -->
+          <select
+            [ngModel]="filtroAnio()"
+            (ngModelChange)="filtroAnio.set(+$event)"
+            class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          >
+            @for (anio of aniosDisponibles; track anio) {
+              <option [ngValue]="anio">{{ anio }}</option>
+            }
+          </select>
+          <!-- Tipo -->
+          <select
+            [ngModel]="filtroTipo()"
+            (ngModelChange)="filtroTipo.set($event)"
+            class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          >
+            <option value="">Ingreso y Egreso</option>
+            <option value="INGRESO">Solo Ingresos</option>
+            <option value="EGRESO">Solo Egresos</option>
+          </select>
+          <!-- Método de pago -->
+          <select
+            [ngModel]="filtroMetodoPago()"
+            (ngModelChange)="filtroMetodoPago.set($event)"
+            class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          >
+            <option value="">Todos los métodos</option>
+            @for (metodo of metodosPago; track metodo) {
+              <option [ngValue]="metodo">{{ metodo }}</option>
+            }
+          </select>
+          <!-- Manzano -->
+          <input
+            type="text"
+            [ngModel]="filtroManzano()"
+            (ngModelChange)="filtroManzano.set($event)"
+            placeholder="Manzano..."
+            class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          />
+          <!-- N° Lote -->
+          <input
+            type="text"
+            [ngModel]="filtroNumeroLote()"
+            (ngModelChange)="filtroNumeroLote.set($event)"
+            placeholder="N° Lote..."
+            class="px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+          />
+        </div>
+        <div class="flex gap-2 mt-3">
+          <button
+            (click)="aplicarFiltros()"
+            class="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-semibold transition-colors"
+          >
+            Aplicar filtros
+          </button>
+          @if (hayFiltrosActivos()) {
+            <button
+              (click)="limpiarFiltros()"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg text-sm font-semibold transition-colors"
+            >
+              Limpiar
+            </button>
+          }
+        </div>
+      </div>
+
+      <!-- Buscador (sin cambios) -->
+      <div class="mb-6">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg
+              class="w-5 h-5 text-emerald-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
+            </svg>
+          </div>
+          <input
+            type="text"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="searchTerm.set($event)"
+            placeholder="Buscar en resultados..."
+            class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+          />
+        </div>
+      </div>
+
+      <!-- Resto del contenido (tabla, cards, paginación - sin cambios) -->
+      @if (cargando()) {
+        <div class="text-center py-12">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"
+          ></div>
+          <p class="text-gray-600 mt-4 text-sm sm:text-base">Cargando movimientos...</p>
+        </div>
+      } @else if (error()) {
+        <div class="text-center py-12">
+          <div class="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md mx-auto">
+            <svg
+              class="w-12 h-12 text-red-500 mx-auto mb-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <p class="text-red-700 font-semibold text-sm sm:text-base">{{ error() }}</p>
+          </div>
+        </div>
+      } @else {
+        <!-- Vista Desktop - Tabla -->
+        <div class="hidden lg:block">
+          <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full">
+              <thead class="bg-gradient-to-r from-emerald-500 to-emerald-600">
+                <tr>
+                  @for (col of columns; track col.key) {
+                    <th
+                      class="px-4 py-3 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors"
+                      (click)="col.sortable ? cambiarOrden(col.key) : null"
+                    >
+                      <div class="flex items-center space-x-2">
+                        <span class="text-sm font-semibold">{{ col.label }}</span>
+                        @if (col.sortable) {
+                          <svg
+                            class="w-3 h-3 transition-transform"
+                            [class]="getClaseFlecha(col.key)"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 15l7-7 7 7"
+                            />
+                          </svg>
+                        }
+                      </div>
+                    </th>
+                  }
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-white uppercase tracking-wider"
+                  >
+                    Lote / Manzano
+                  </th>
+                  <!-- En el thead, después de la columna "Lote / Manzano" -->
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-white uppercase tracking-wider"
+                  >
+                    Cliente
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                @for (movimiento of filteredMovimientos(); track movimiento.id) {
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <div class="flex items-center gap-3">
+                        <div
+                          class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center"
+                        >
+                          <svg
+                            class="w-4 h-4 text-gray-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <p class="font-medium text-gray-900 text-sm">
+                            {{ movimiento.fecha | date: 'dd/MM/yyyy' }}
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            {{ movimiento.fecha | date: 'HH:mm' }}
+                          </p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <span [class]="getTipoBadgeClass(movimiento.tipo)" class="text-xs">{{
+                        movimiento.tipo
+                      }}</span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <span
+                        class="text-lg font-bold"
+                        [class.text-green-600]="movimiento.tipo === 'INGRESO'"
+                        [class.text-red-600]="movimiento.tipo === 'EGRESO'"
+                      >
+                        {{ movimiento.tipo === 'INGRESO' ? '+' : '-' }}
+                        {{ movimiento.monto | number: '1.0-2' }} Bs.
+                      </span>
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      <span
+                        class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-700"
+                      >
+                        {{ movimiento.metodoPago }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-4">
+                      <p class="text-gray-700 text-sm">
+                        {{ movimiento.descripcion || 'Sin descripción' }}
+                      </p>
+                      @if (movimiento.referencia) {
+                        <p class="text-xs text-gray-500">Ref: {{ movimiento.referencia }}</p>
+                      }
+                    </td>
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      @if (movimiento.venta?.lote) {
+                        <div class="text-sm">
+                          <p class="font-medium text-gray-800">
+                            Lote {{ movimiento.venta?.lote?.numeroLote }}
+                          </p>
+                          @if (movimiento.venta?.lote?.manzano) {
+                            <p class="text-xs text-gray-500">
+                              Mzno. {{ movimiento.venta?.lote?.manzano }}
+                            </p>
+                          }
+                          @if (movimiento.venta?.lote?.urbanizacion?.nombre) {
+                            <p class="text-xs text-emerald-600">
+                              {{ movimiento.venta?.lote?.urbanizacion?.nombre }}
+                            </p>
+                          }
+                        </div>
+                      } @else {
+                        <span class="text-xs text-gray-400">—</span>
+                      }
+                    </td>
+                    <!-- En el tbody, después de la celda de lote -->
+                    <td class="px-4 py-4 whitespace-nowrap">
+                      @if (movimiento.venta?.cliente) {
+                        <div class="text-sm">
+                          <p class="font-medium text-gray-800">
+                            {{ movimiento.venta?.cliente?.fullName }}
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            CI: {{ movimiento.venta?.cliente?.ci }}
+                          </p>
+                        </div>
+                      } @else {
+                        <span class="text-xs text-gray-400">—</span>
+                      }
+                    </td>
+                  </tr>
+                }
+                @if (filteredMovimientos().length === 0 && !cargando()) {
+                  <tr>
+                    <td colspan="6" class="px-4 py-12 text-center">
+                      <div class="flex flex-col items-center gap-3 text-gray-500">
+                        <svg
+                          class="w-16 h-16 text-gray-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                          />
+                        </svg>
+                        <p class="text-lg font-semibold">
+                          No hay movimientos con los filtros aplicados
+                        </p>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vista Mobile - Cards -->
+        <div class="lg:hidden space-y-4">
+          @for (movimiento of filteredMovimientos(); track movimiento.id) {
+            <div
+              class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden"
+            >
+              <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 p-4">
+                <div class="flex justify-between items-start">
+                  <div class="flex-1">
+                    <h3 class="font-bold text-white text-lg">
+                      {{ movimiento.fecha | date: 'dd/MM/yyyy' }}
+                    </h3>
+                    <p class="text-emerald-100 text-sm">{{ movimiento.fecha | date: 'HH:mm' }}</p>
+                  </div>
+                  <span
+                    [class]="getTipoBadgeClass(movimiento.tipo)"
+                    class="text-xs flex-shrink-0 ml-2"
+                    >{{ movimiento.tipo }}</span
+                  >
+                </div>
+              </div>
+              <div class="p-4 space-y-3">
+                <span
+                  class="text-xl font-bold"
+                  [class.text-green-600]="movimiento.tipo === 'INGRESO'"
+                  [class.text-red-600]="movimiento.tipo === 'EGRESO'"
+                >
+                  {{ movimiento.tipo === 'INGRESO' ? '+' : '-' }}
+                  {{ movimiento.monto | number: '1.0-2' }} Bs.
+                </span>
+                <div class="flex items-center gap-2 text-sm">
+                  <span class="text-gray-900">{{ movimiento.metodoPago }}</span>
+                </div>
+                @if (movimiento.venta?.lote) {
+                  <div class="flex items-center gap-2 text-sm bg-emerald-50 rounded-lg p-2">
+                    <svg
+                      class="w-4 h-4 text-emerald-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                      />
+                    </svg>
+                    <span class="text-emerald-700 font-medium">
+                      Lote {{ movimiento.venta?.lote?.numeroLote }}
+                      @if (movimiento.venta?.lote?.manzano) {
+                        · Mzno. {{ movimiento.venta?.lote?.manzano }}
+                      }
+                    </span>
+                  </div>
+                }
+                <div class="pt-2 border-t border-gray-100">
+                  <p class="text-xs text-gray-500 mb-1">Descripción</p>
+                  <p class="text-sm text-gray-900">
+                    {{ movimiento.descripcion || 'Sin descripción' }}
+                  </p>
+                  @if (movimiento.referencia) {
+                    <p class="text-xs text-gray-500 mt-1">
+                      Referencia: {{ movimiento.referencia }}
+                    </p>
+                  }
+                </div>
+                @if (movimiento.venta?.cliente) {
+                  <div class="flex items-center gap-2 text-sm bg-blue-50 rounded-lg p-2">
+                    <svg
+                      class="w-4 h-4 text-blue-500"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      />
+                    </svg>
+                    <span class="text-blue-700 font-medium">{{
+                      movimiento.venta?.cliente?.fullName
+                    }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+          @if (filteredMovimientos().length === 0 && !cargando()) {
+            <div class="bg-white rounded-xl p-6 sm:p-8 text-center">
+              <svg
+                class="w-16 h-16 text-gray-300 mb-4 mx-auto"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
+                />
+              </svg>
+              <p class="text-lg font-semibold text-gray-700">
+                No hay movimientos con los filtros aplicados
+              </p>
+            </div>
+          }
+        </div>
+
+        <!-- Paginación -->
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 gap-4 px-2">
+          <div class="text-sm text-gray-600 text-center sm:text-left">
+            Mostrando {{ rangeStart() }} a {{ rangeEnd() }} de {{ total() }} movimientos
+          </div>
+          <div class="flex items-center justify-center gap-1 sm:gap-2 flex-wrap">
+            <button
+              (click)="prevPage()"
+              [disabled]="currentPage() === 1"
+              class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg disabled:opacity-50 text-sm font-medium transition-colors"
+            >
+              <span class="hidden sm:inline">Anterior</span>
+              <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+            @for (i of pageArray(); track i) {
+              <button
+                (click)="goToPage(i)"
+                [class.font-bold]="currentPage() === i"
+                [class.bg-emerald-500]="currentPage() === i"
+                [class.text-white]="currentPage() === i"
+                [class.shadow-md]="currentPage() === i"
+                class="px-3 py-2 border rounded-lg hover:bg-emerald-100 text-sm font-medium transition-all min-w-[40px]"
+              >
+                {{ i }}
+              </button>
+            }
+            <button
+              (click)="nextPage()"
+              [disabled]="currentPage() === totalPages()"
+              class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg disabled:opacity-50 text-sm font-medium transition-colors"
+            >
+              <span class="hidden sm:inline">Siguiente</span>
+              <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

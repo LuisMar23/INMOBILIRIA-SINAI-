@@ -1,0 +1,237 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8">
+    <div class="max-w-full mx-auto">
+        <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Nueva Propiedad</h1>
+                        <p class="text-emerald-100 text-xs sm:text-sm mt-1">Complete los datos para registrar una nueva
+                            propiedad</p>
+                    </div>
+                </div>
+                <button [routerLink]="['/propiedades/lista']"
+                    class="flex items-center gap-2 bg-white text-emerald-500 font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-50 transition-all text-sm sm:text-base w-full sm:w-auto justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Volver al Listado
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+            <form [formGroup]="propiedadForm" (submit)="handleFormSubmit($event)">
+                <div class="mb-8">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Información de la Propiedad
+                    </h2>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo <span class="text-red-500">*</span>
+                                </label>
+                                <select formControlName="tipo"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    [class.border-red-500]="propiedadForm.get('tipo')?.invalid && propiedadForm.get('tipo')?.touched">
+                                    @for (tipo of tiposPropiedad; track tipo.value) {
+                                    <option [value]="tipo.value">{{ tipo.label }}</option>
+                                    }
+                                </select>
+                                @if (propiedadForm.get('tipo')?.invalid && propiedadForm.get('tipo')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El tipo es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" formControlName="nombre"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="Ej: Casa Familiar"
+                                    [class.border-red-500]="propiedadForm.get('nombre')?.invalid && propiedadForm.get('nombre')?.touched" />
+                                @if (propiedadForm.get('nombre')?.invalid && propiedadForm.get('nombre')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El nombre es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tamaño (m²) <span class="text-red-500">*</span>
+                                </label>
+                                <input type="number" step="0.01" formControlName="tamano"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="0.00" min="0.01"
+                                    [class.border-red-500]="propiedadForm.get('tamano')?.invalid && propiedadForm.get('tamano')?.touched" />
+                                @if (propiedadForm.get('tamano')?.invalid && propiedadForm.get('tamano')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El tamaño debe ser mayor a 0</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Ciudad <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" formControlName="ciudad"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="Ej: Tarija - Cercado"
+                                    [class.border-red-500]="propiedadForm.get('ciudad')?.invalid && propiedadForm.get('ciudad')?.touched" />
+                                @if (propiedadForm.get('ciudad')?.invalid && propiedadForm.get('ciudad')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">La ciudad es requerida</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Precio (Bs.) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">Bs.</span>
+                                    <input type="number" step="0.01" formControlName="precio"
+                                        class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                        placeholder="0.00" min="0.01"
+                                        [class.border-red-500]="propiedadForm.get('precio')?.invalid && propiedadForm.get('precio')?.touched" />
+                                </div>
+                                @if (propiedadForm.get('precio')?.invalid && propiedadForm.get('precio')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El precio debe ser mayor a 0</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Estado Inmueble <span class="text-red-500">*</span>
+                                </label>
+                                <select formControlName="estado"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    [class.border-red-500]="propiedadForm.get('estado')?.invalid && propiedadForm.get('estado')?.touched">
+                                    @for (estado of estadosInmueble; track estado.value) {
+                                    <option [value]="estado.value">{{ estado.label }}</option>
+                                    }
+                                </select>
+                                @if (propiedadForm.get('estado')?.invalid && propiedadForm.get('estado')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El estado es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Estado Propiedad <span class="text-red-500">*</span>
+                                </label>
+                                <select formControlName="estadoPropiedad"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    [class.border-red-500]="propiedadForm.get('estadoPropiedad')?.invalid && propiedadForm.get('estadoPropiedad')?.touched">
+                                    @for (estado of estadosPropiedad; track estado.value) {
+                                    <option [value]="estado.value">{{ estado.label }}</option>
+                                    }
+                                </select>
+                                @if (propiedadForm.get('estadoPropiedad')?.invalid &&
+                                propiedadForm.get('estadoPropiedad')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El estado propiedad es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Habitaciones
+                                </label>
+                                <input type="number" formControlName="habitaciones"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="0" min="0" />
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Baños
+                                </label>
+                                <input type="number" formControlName="banos"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="0" min="0" />
+                            </div>
+
+                            @if (mostrarCampoEncargado()) {
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Encargado (Opcional)
+                                </label>
+                                <select formControlName="encargadoId"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base">
+                                    <option value="">Seleccionar encargado...</option>
+                                    @for (asesor of asesores(); track asesor.id) {
+                                    <option [value]="asesor.id">
+                                        {{ asesor.fullName }} - {{ asesor.telefono }} ({{ asesor.role }})
+                                    </option>
+                                    }
+                                </select>
+                                <p class="mt-1 text-xs text-gray-500">Solo se puede asignar encargado a propiedades tipo
+                                    Casa o Departamento</p>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Información Adicional
+                    </h2>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 gap-4 sm:gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Descripción
+                                </label>
+                                <textarea formControlName="descripcion" rows="4"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="Ingrese una descripción detallada de la propiedad..."></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    URL de Google Maps
+                                </label>
+                                <input type="url" formControlName="ubicacion"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="https://maps.google.com/?q=latitud,longitud" />
+                                <p class="mt-1 text-xs text-gray-500">Ingrese la URL completa de Google Maps para
+                                    mostrar la ubicación de la propiedad</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200">
+                    <button type="button" (click)="router.navigate(['/propiedades/lista'])"
+                        class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="propiedadForm.invalid || enviando()"
+                        class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ enviando() ? 'Creando Propiedad...' : 'Crear Propiedad' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

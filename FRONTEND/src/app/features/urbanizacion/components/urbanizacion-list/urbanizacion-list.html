@@ -1,0 +1,412 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8">
+  <div class="max-w-full mx-auto">
+    <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Gestión de Urbanizaciones</h1>
+            <p class="text-emerald-100 text-xs sm:text-sm mt-1">Administra las urbanizaciones del sistema</p>
+          </div>
+        </div>
+        @if (isAdmin) {
+        <button (click)="openModal()"
+          class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 w-full sm:w-auto justify-center font-semibold text-sm sm:text-base">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Nueva Urbanización
+        </button>
+        }
+      </div>
+    </div>
+
+    <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+      <div class="mb-6">
+        <div class="relative max-w-md">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input type="text" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
+            placeholder="Buscar por urbanización, ubicación, ciudad..."
+            class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base" />
+        </div>
+      </div>
+
+      @if (cargando()) {
+      <div class="text-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+        <p class="text-gray-600 mt-4">Cargando urbanizaciones...</p>
+      </div>
+      } @else {
+      <div class="hidden lg:block">
+        <div class="overflow-x-auto rounded-lg border border-gray-200">
+          <table class="w-full">
+            <thead class="bg-gradient-to-r from-emerald-500 to-emerald-600">
+              <tr>
+                @for (col of columns; track col.key) {
+                <th
+                  class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors"
+                  (click)="col.sortable ? sort(col.key) : null">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-sm font-semibold">{{ col.label }}</span>
+                    @if (col.sortable) {
+                    <div class="flex flex-col justify-center h-4">
+                      <svg class="w-3 h-3 transition-transform" [class]="getClaseFlecha(col.key)" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                      </svg>
+                    </div>
+                    }
+                  </div>
+                </th>
+                }
+                <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Google Maps</th>
+                <th class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider">Acciones</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-100">
+              @for (u of filteredUrbanizaciones(); track u.id; let i = $index) {
+              <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ rangeStart() + i }}</td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                  <div class="text-sm font-medium text-gray-900">{{ u.nombre }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ u.ubicacion }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ u.ciudad }}</td>
+                <td class="px-6 py-4 text-sm text-gray-900">{{ u.descripcion || '-' }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  @if (tieneMaps(u)) {
+                  <button (click)="abrirMaps(u)"
+                    class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-3 py-1.5 rounded-lg shadow-md transition-all duration-200 font-medium text-xs"
+                    title="Abrir en Google Maps">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    </svg>
+                    <span class="hidden sm:inline">Google Maps</span>
+                  </button>
+                  } @else {
+                  <span class="text-gray-400 text-xs">-</span>
+                  }
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-center">
+                  <div class="flex justify-center gap-2">
+                    <button
+                      class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                      [routerLink]="['/urbanizaciones/detalle', u.id]" title="Ver Detalles">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </button>
+                    @if (isAdmin) {
+                    <button [routerLink]="['/urbanizaciones/editar', u.id]"
+                      class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                      title="Editar urbanización">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button (click)="delete(u)"
+                      class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                      title="Eliminar urbanización">
+                      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                    <button class="p-1.5 rounded-lg bg-teal-50 text-teal-600 hover:bg-teal-100 transition-colors"
+                      (click)="abrirModalSubirArchivos(u)" title="Subir Archivos o Imágenes">
+                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M4 4v16h16V4H4zm4 8h8m-4-4v8" />
+                      </svg>
+                    </button>
+                    }
+                  </div>
+                </td>
+              </tr>
+              }
+              @if (filteredUrbanizaciones().length === 0) {
+              <tr>
+                <td colspan="7" class="px-6 py-12 text-center">
+                  <div class="flex flex-col items-center gap-3 text-gray-500">
+                    <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                    <p class="text-lg font-semibold">No hay datos para mostrar</p>
+                    <p class="text-sm">No se encontraron urbanizaciones</p>
+                  </div>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="lg:hidden space-y-4">
+        @for (u of filteredUrbanizaciones(); track u.id; let i = $index) {
+        <div
+          class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 p-4">
+            <div class="flex justify-between items-start">
+              <div>
+                <h3 class="font-bold text-white text-lg">{{ u.nombre }}</h3>
+                <p class="text-emerald-100 text-sm">N°: {{ rangeStart() + i }}</p>
+              </div>
+            </div>
+          </div>
+          <div class="p-4 space-y-3">
+            <div>
+              <span class="font-medium text-gray-700 text-sm">Ubicación:</span>
+              <p class="text-gray-800 text-sm">{{ u.ubicacion }}</p>
+            </div>
+            <div>
+              <span class="font-medium text-gray-700 text-sm">Ciudad:</span>
+              <p class="text-gray-800 text-sm">{{ u.ciudad }}</p>
+            </div>
+            <div>
+              <span class="font-medium text-gray-700 text-sm">Descripción:</span>
+              <p class="text-gray-800 text-sm">{{ u.descripcion || '-' }}</p>
+            </div>
+            @if (tieneMaps(u)) {
+            <div class="pt-2 border-t border-gray-100">
+              <button (click)="abrirMaps(u)"
+                class="flex items-center justify-center gap-2 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-3 py-2 rounded-lg text-xs font-medium shadow-md transition-all w-full mb-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                Ver en Google Maps
+              </button>
+            </div>
+            }
+            <div class="flex justify-end gap-2 mt-2">
+              <button
+                class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm transition transform hover:scale-105"
+                [routerLink]="['/urbanizaciones/detalle', u.id]">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                Detalles
+              </button>
+              @if (isAdmin) {
+              <button [routerLink]="['/urbanizaciones/editar', u.id]"
+                class="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm transition transform hover:scale-105">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Editar
+              </button>
+              <button (click)="delete(u)"
+                class="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm transition transform hover:scale-105">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Eliminar
+              </button>
+              <button
+                class="flex items-center justify-center gap-2 bg-teal-500 hover:bg-teal-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm transition transform hover:scale-105"
+                (click)="abrirModalSubirArchivos(u)" title="Subir Archivos o Imágenes">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M4 4v16h16V4H4zm4 8h8m-4-4v8" />
+                </svg>
+                Subir Archivos
+              </button>
+              }
+            </div>
+          </div>
+        </div>
+        }
+        @if (filteredUrbanizaciones().length === 0) {
+        <div class="bg-white rounded-xl p-8 text-center">
+          <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+          </svg>
+          <p class="text-lg font-semibold text-gray-700 mb-2">No hay datos para mostrar</p>
+          <p class="text-sm text-gray-500">No se encontraron urbanizaciones</p>
+        </div>
+        }
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 gap-4 px-2">
+        <div class="text-sm text-gray-600 text-center sm:text-left">
+          Mostrando {{ rangeStart() }} a {{ rangeEnd() }} de {{ total() }} urbanizaciones
+        </div>
+        <div class="flex items-center justify-center gap-1 sm:gap-2 flex-wrap">
+          <button (click)="prevPage()" [disabled]="currentPage() === 1"
+            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg disabled:opacity-50 text-sm font-medium transition-colors">
+            <span class="hidden sm:inline">Anterior</span>
+            <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          @for (i of pageArray(); track i) {
+          <button (click)="goToPage(i)" [class.font-bold]="currentPage() === i"
+            [class.bg-emerald-500]="currentPage() === i" [class.text-white]="currentPage() === i"
+            [class.shadow-md]="currentPage() === i"
+            class="px-3 py-2 border rounded-lg hover:bg-emerald-100 text-sm font-medium transition-all min-w-[40px]">
+            {{ i }}
+          </button>
+          }
+          <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+            class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg disabled:opacity-50 text-sm font-medium transition-colors">
+            <span class="hidden sm:inline">Siguiente</span>
+            <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+
+@if (showModal()) {
+<div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+  <div class="bg-white w-full max-w-2xl rounded-2xl shadow-2xl animate-fadeIn max-h-[95vh] overflow-y-auto">
+    <div class="bg-emerald-500 text-white p-4 md:p-6 rounded-t-2xl flex justify-between items-center">
+      <h2 class="text-xl md:text-2xl font-bold">Nueva Urbanización</h2>
+      <button (click)="cancelEdit()" class="text-white hover:text-emerald-200 transition-colors p-2">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="p-4 md:p-6 space-y-4 md:space-y-6">
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
+        <input formControlName="nombre" placeholder="Nombre de la urbanización"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
+        <p class="text-red-500 text-xs mt-1">El nombre es requerido</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Ubicación</label>
+        <input formControlName="ubicacion" placeholder="Ubicación"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        @if (form.get('ubicacion')?.invalid && form.get('ubicacion')?.touched) {
+        <p class="text-red-500 text-xs mt-1">La ubicación es requerida</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Ciudad</label>
+        <input formControlName="ciudad" placeholder="Ej: Tarija - Cercado"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        @if (form.get('ciudad')?.invalid && form.get('ciudad')?.touched) {
+        <p class="text-red-500 text-xs mt-1">La ciudad es requerida</p>
+        }
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Sede</label>
+        <select formControlName="sedeId"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+          <option [value]="null">Seleccionar sede (opcional)</option>
+          @for (sede of sedesList(); track sede.id) {
+          <option [value]="sede.id">{{ sede.nombre }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Superficie Total (m²)</label>
+        <input type="number" step="0.01" formControlName="superficieTotal" placeholder="Superficie total"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+      </div>
+<!-- 
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
+        <select formControlName="estado"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+          <option value="VENTA">Venta</option>
+          <option value="PRE_VENTA">Pre-Venta</option>
+          <option value="POST_VENTA">Post-Venta</option>
+        </select>
+      </div> -->
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Norte</label>
+        <input formControlName="colindanciaNorte" placeholder="Colindancia Norte"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Este</label>
+        <input formControlName="colindanciaEste" placeholder="Colindancia Este"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Sur</label>
+        <input formControlName="colindanciaSur" placeholder="Colindancia Sur"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Oeste</label>
+        <input formControlName="colindanciaOeste" placeholder="Colindancia Oeste"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">URL de Google Maps</label>
+        <input type="url" formControlName="maps" placeholder="https://maps.google.com/?q=latitud,longitud"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        <p class="mt-1 text-xs text-gray-500">Ingrese la URL completa de Google Maps (opcional)</p>
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold text-gray-700 mb-2">Descripción</label>
+        <textarea formControlName="descripcion" placeholder="Descripción (opcional)"
+          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"></textarea>
+      </div>
+
+      <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
+        <button type="button" (click)="cancelEdit()"
+          class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 font-semibold">Cancelar</button>
+        <button type="submit"
+          class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 font-semibold">Crear
+          Urbanización</button>
+      </div>
+    </form>
+  </div>
+</div>
+}
+
+@if (mostrarUploader() && urbanizacionSeleccionada()) {
+<div class="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+  <div class="bg-white rounded-xl p-6 shadow-lg w-[400px] relative">
+    <button class="absolute top-2 right-2 text-gray-500 hover:text-gray-700" (click)="cerrarModalUploader()">✖</button>
+    <h3 class="text-lg font-semibold mb-4">Subir archivos para Urbanizacion #{{ urbanizacionSeleccionada()?.id }}</h3>
+    <app-archivos [urbanizacionId]="urbanizacionSeleccionada()?.id!" modo="crear"
+      (subidaCompleta)="onSubidaCompleta()"></app-archivos>
+  </div>
+</div>
+}

@@ -1,0 +1,73 @@
+<div *ngIf="archivos.length > 0" class="bg-gray-50 rounded-2xl p-5 mt-7">
+  <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+    <svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+        d="M4 16l4-4 4 4 8-8 4 4M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" />
+    </svg>
+    Galería de Archivos
+  </h3>
+
+  <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 space-y-4">
+    <div *ngFor="let archivo of archivos" 
+         class="relative break-inside-avoid rounded-xl overflow-hidden group shadow-md hover:shadow-lg transition-all">
+      
+      <!-- Si ES imagen -->
+      <img 
+        *ngIf="esImagen(archivo.tipoArchivo)"
+        [src]="urlServer + archivo.urlArchivo" 
+        [alt]="archivo.nombreArchivo"
+        class="w-full object-cover rounded-xl cursor-pointer"
+        (click)="descargarArchivo(archivo)"
+        title="Click para descargar"
+      />
+      
+      <!-- Si NO es imagen (PDF, DOC, etc) -->
+      <div 
+        *ngIf="!esImagen(archivo.tipoArchivo)"
+        class="w-full h-40 bg-gradient-to-br from-gray-100 to-gray-200 flex flex-col items-center justify-center rounded-xl p-4 gap-3 cursor-pointer hover:from-gray-200 hover:to-gray-300 transition-all"
+        (click)="descargarArchivo(archivo)"
+        title="Click para descargar">
+        
+        <!-- Icono según tipo -->
+        <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+        </svg>
+        
+        <!-- Nombre del archivo -->
+        <span class="text-xs text-gray-700 font-medium text-center px-2 break-words max-w-full">
+          {{ archivo.nombreArchivo }}
+        </span>
+        
+        <!-- Tipo de archivo -->
+
+        <span class="text-xs text-gray-500 bg-white px-2 py-1 rounded">
+          {{ archivo.tipoArchivo!.split('/')[1]?.toUpperCase() || 'FILE' }}
+        </span>
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="absolute top-2 right-2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all z-10">
+        <!-- Botón descargar -->
+        <button 
+          (click)="descargarArchivo(archivo); $event.stopPropagation()"
+          class="bg-blue-600 bg-opacity-90 hover:bg-opacity-100 text-white rounded-full p-1.5 transition-all shadow-lg"
+          title="Descargar">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+          </svg>
+        </button>
+        
+        <!-- Botón eliminar -->
+        <button 
+          (click)="onEliminar(archivo.id); $event.stopPropagation()"
+          class="bg-red-600 bg-opacity-90 hover:bg-opacity-100 text-white rounded-full p-1.5 transition-all shadow-lg"
+          title="Eliminar">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div> 
+</div>

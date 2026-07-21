@@ -1,0 +1,896 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8"
+>
+  <div class="max-w-full mx-auto">
+    <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Registrar Venta</h1>
+          <p class="text-emerald-100 text-xs sm:text-sm mt-1">
+            Complete los datos para registrar una nueva venta
+          </p>
+        </div>
+        <button
+          [routerLink]="['/ventas/lista']"
+          class="flex items-center gap-2 bg-white text-emerald-500 font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-50 transition-all text-sm w-full sm:w-auto justify-center"
+        >
+          Volver al Listado
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-b-2xl shadow-xl">
+      <!-- ─── Barra de tabs ────────────────────────────────────────────── -->
+      <div class="flex border-b border-gray-200 overflow-x-auto">
+        <button
+          type="button"
+          (click)="irATab('datos')"
+          [class.border-emerald-500]="activeTab() === 'datos'"
+          [class.text-emerald-600]="activeTab() === 'datos'"
+          [class.text-gray-500]="activeTab() !== 'datos'"
+          class="px-5 py-3 text-sm font-medium border-b-2 border-transparent whitespace-nowrap"
+        >
+          Datos
+        </button>
+        <button
+          type="button"
+          (click)="irATab('lote')"
+          [class.border-emerald-500]="activeTab() === 'lote'"
+          [class.text-emerald-600]="activeTab() === 'lote'"
+          [class.text-gray-500]="activeTab() !== 'lote'"
+          class="px-5 py-3 text-sm font-medium border-b-2 border-transparent whitespace-nowrap"
+        >
+          Lote(s)
+        </button>
+        <button
+          type="button"
+          (click)="irATab('pago')"
+          [class.border-emerald-500]="activeTab() === 'pago'"
+          [class.text-emerald-600]="activeTab() === 'pago'"
+          [class.text-gray-500]="activeTab() !== 'pago'"
+          class="px-5 py-3 text-sm font-medium border-b-2 border-transparent whitespace-nowrap"
+        >
+          Pago
+        </button>
+        <!-- Tab Financiación: bloqueada visualmente si no es CRÉDITO -->
+        <button
+          type="button"
+          (click)="irATab('financiacion')"
+          [disabled]="financiacionBloqueada()"
+          [class.border-emerald-500]="activeTab() === 'financiacion'"
+          [class.text-emerald-600]="activeTab() === 'financiacion' && !financiacionBloqueada()"
+          [class.text-gray-300]="financiacionBloqueada()"
+          [class.text-gray-500]="!financiacionBloqueada() && activeTab() !== 'financiacion'"
+          [class.cursor-not-allowed]="financiacionBloqueada()"
+          class="px-5 py-3 text-sm font-medium border-b-2 border-transparent whitespace-nowrap flex items-center gap-1.5"
+        >
+          @if (financiacionBloqueada()) {
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 10-8 0v4h8z"
+              />
+            </svg>
+          }
+          Financiación
+        </button>
+      </div>
+
+      @if (financiacionBloqueada()) {
+        <div
+          class="bg-amber-50 border-b border-amber-200 px-4 sm:px-6 py-2.5 text-xs sm:text-sm text-amber-700 flex items-center gap-2"
+        >
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          La pestaña Financiación está bloqueada. Seleccione "Crédito" como Tipo de Venta (en la
+          pestaña Datos) para habilitarla.
+        </div>
+      }
+
+      <form [formGroup]="ventaForm" (submit)="handleFormSubmit($event)" class="p-4 sm:p-6 lg:p-8">
+        <!-- ══════════════ TAB: DATOS ══════════════ -->
+        @if (activeTab() === 'datos') {
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            <div class="sm:col-span-2 lg:col-span-3">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Cliente <span class="text-red-500">*</span></label
+              >
+              <div class="flex gap-2 mb-3">
+                <button
+                  type="button"
+                  (click)="toggleModoCliente('existente')"
+                  [class.bg-emerald-500]="modoCliente() === 'existente'"
+                  [class.text-white]="modoCliente() === 'existente'"
+                  [class.bg-gray-100]="modoCliente() !== 'existente'"
+                  [class.text-gray-700]="modoCliente() !== 'existente'"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Cliente existente
+                </button>
+                <button
+                  type="button"
+                  (click)="toggleModoCliente('nuevo')"
+                  [class.bg-emerald-500]="modoCliente() === 'nuevo'"
+                  [class.text-white]="modoCliente() === 'nuevo'"
+                  [class.bg-gray-100]="modoCliente() !== 'nuevo'"
+                  [class.text-gray-700]="modoCliente() !== 'nuevo'"
+                  class="px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                >
+                  Cliente nuevo
+                </button>
+              </div>
+
+              @if (modoCliente() === 'existente') {
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    [value]="searchCliente()"
+                    readonly
+                    placeholder="Seleccione un cliente..."
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-sm cursor-pointer"
+                    (click)="clienteModal.open()"
+                  />
+                  <button
+                    type="button"
+                    (click)="clienteModal.open()"
+                    class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-3 rounded-lg"
+                  >
+                    Buscar
+                  </button>
+                </div>
+                @if (ventaForm.get('clienteId')?.invalid && ventaForm.get('clienteId')?.touched) {
+                  <p class="mt-1 text-xs text-red-600">El cliente es requerido</p>
+                }
+              } @else {
+                <div
+                  [formGroup]="clienteNuevoForm"
+                  class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-emerald-50 border border-emerald-200 rounded-lg p-4"
+                >
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1"
+                      >Nombre completo <span class="text-red-500">*</span></label
+                    >
+                    <input
+                      type="text"
+                      formControlName="fullName"
+                      class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1"
+                      >CI <span class="text-red-500">*</span></label
+                    >
+                    <input
+                      type="text"
+                      formControlName="ci"
+                      class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1"
+                      >Teléfono <span class="text-red-500">*</span></label
+                    >
+                    <input
+                      type="text"
+                      formControlName="telefono"
+                      class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1"
+                      >Email (opcional)</label
+                    >
+                    <input
+                      type="email"
+                      formControlName="email"
+                      class="w-full px-3 py-2.5 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                </div>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Tipo de Venta <span class="text-red-500">*</span></label
+              >
+              <select
+                formControlName="tipoVenta"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+              >
+                <option value="CONTADO">Contado</option>
+                <option value="CREDITO">Crédito</option>
+              </select>
+              @if (ventaForm.get('tipoVenta')?.value === 'CONTADO') {
+                <p class="mt-1 text-xs text-gray-500">
+                  Con "Contado" no se habilita el Plan de Financiación.
+                </p>
+              }
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Tipo de Inmueble <span class="text-red-500">*</span></label
+              >
+              <select
+                formControlName="inmuebleTipo"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+              >
+                <option value="LOTE">Lote</option>
+                <option value="PROPIEDAD">Propiedad</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Asesor o Agente de Ventas <span class="text-red-500">*</span></label
+              >
+
+              @if (puedeElegirAsesor()) {
+                <select
+                  formControlName="asesorId"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                >
+                  <option value="">Seleccione...</option>
+                  @for (asesor of asesores(); track asesor.id) {
+                    <option [value]="asesor.id">{{ asesor.fullName }}</option>
+                  }
+                </select>
+                @if (ventaForm.get('asesorId')?.invalid && ventaForm.get('asesorId')?.touched) {
+                  <p class="mt-1 text-xs text-red-600">El asesor es requerido</p>
+                }
+              } @else {
+                <!-- ASESOR logueado: campo bloqueado, se autoasigna -->
+                <input
+                  type="text"
+                  readonly
+                  [value]="authService.getCurrentUser()?.fullName"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed text-sm"
+                />
+              }
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+              <select
+                formControlName="estado"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+              >
+                <option value="PENDIENTE">Pendiente</option>
+                <option value="PAGADO">Pagado</option>
+              </select>
+            </div>
+          </div>
+        }
+
+        <!-- ══════════════ TAB: LOTE(S) ══════════════ -->
+        @if (activeTab() === 'lote') {
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            @if (inmuebleTipoSeleccionado() === 'LOTE') {
+              <div class="relative">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Lote <span class="text-red-500">*</span></label
+                >
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    [value]="searchLote()"
+                    readonly
+                    placeholder="Seleccione un lote..."
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-sm cursor-pointer"
+                    (click)="loteModal.open()"
+                  />
+                  <button
+                    type="button"
+                    (click)="loteModal.open()"
+                    class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-3 rounded-lg"
+                  >
+                    Buscar
+                  </button>
+                </div>
+                @if (ventaForm.get('inmuebleId')?.invalid && ventaForm.get('inmuebleId')?.touched) {
+                  <p class="mt-1 text-xs text-red-600">El lote es requerido</p>
+                }
+              </div>
+            } @else {
+              <div class="relative">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Propiedad <span class="text-red-500">*</span></label
+                >
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    [value]="searchPropiedad()"
+                    readonly
+                    placeholder="Seleccione una propiedad..."
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-sm cursor-pointer"
+                    (click)="propiedadModal.open()"
+                  />
+                  <button
+                    type="button"
+                    (click)="propiedadModal.open()"
+                    class="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-3 rounded-lg"
+                  >
+                    Buscar
+                  </button>
+                </div>
+              </div>
+            }
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Precio Venta Final (Bs.) <span class="text-red-500">*</span></label
+              >
+              <input
+                type="number"
+                step="0.01"
+                formControlName="precioFinal"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                placeholder="0.00"
+                min="0.01"
+              />
+              @if (ventaForm.get('precioFinal')?.invalid && ventaForm.get('precioFinal')?.touched) {
+                <p class="mt-1 text-xs text-red-600">El precio final debe ser mayor a 0</p>
+              }
+            </div>
+
+            <div class="sm:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Observación sobre la Venta</label
+              >
+              <textarea
+                formControlName="observaciones"
+                rows="3"
+                class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                placeholder="Ingrese observación, nota, glosa... sobre cualquier aspecto de esta venta"
+              ></textarea>
+            </div>
+          </div>
+        }
+
+        <!-- ══════════════ TAB: PAGO ══════════════ -->
+        @if (activeTab() === 'pago') {
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Caja <span class="text-red-500">*</span></label
+              >
+              <div class="relative">
+                <input
+                  type="text"
+                  [value]="searchCaja()"
+                  (input)="searchCaja.set($any($event.target).value)"
+                  (focus)="toggleCajasDropdown()"
+                  (blur)="onCajaBlur()"
+                  placeholder="Buscar caja..."
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                />
+                @if (showCajasDropdown()) {
+                  <div
+                    class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+                  >
+                    @for (caja of filteredCajas(); track caja.id) {
+                      <div
+                        (click)="selectCaja(caja)"
+                        class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100"
+                      >
+                        <div class="font-medium text-gray-900">{{ caja.nombre }}</div>
+                        <div class="text-sm text-gray-600">
+                          Saldo: Bs.{{ formatNumber(caja.saldoActual) }} -
+                          {{ caja.usuarioApertura?.fullName }}
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+              @if (ventaForm.get('cajaId')?.invalid && ventaForm.get('cajaId')?.touched) {
+                <p class="mt-1 text-xs text-red-600">La caja es requerida</p>
+              }
+            </div>
+
+            <div
+              class="sm:col-span-2 bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-800"
+            >
+              Si realiza una venta al <strong>CONTADO</strong>, este pago cubre el total. Si la
+              venta es a <strong>CRÉDITO</strong>, registre aquí el <strong>Pago Inicial</strong>,
+              el <strong>Primer Aporte</strong> o la <strong>Primera Cuota</strong>, según
+              corresponda; esto es aplicable incluso si la venta no requiere pago inicial y comienza
+              directamente con el abono de una cuota.
+            </div>
+
+            <div
+              [formGroup]="pagoForm"
+              class="sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6"
+            >
+              <div class="sm:col-span-2 flex items-center gap-3">
+                <input
+                  type="checkbox"
+                  formControlName="ventaSinPagoInmediato"
+                  id="sinPagoInmediato"
+                  class="w-5 h-5 accent-emerald-500"
+                />
+                <label for="sinPagoInmediato" class="text-sm text-gray-700"
+                  >Venta sin pago inmediato</label
+                >
+              </div>
+
+              <!-- <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Banco / Caja Interna, Destino <span class="text-red-500">*</span></label>
+                <input type="text" formControlName="bancoDestino" placeholder="Ej: BBVA Continental - Cuenta Corriente..."
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm" />
+                @if (pagoForm.get('bancoDestino')?.invalid && pagoForm.get('bancoDestino')?.touched) {
+                  <p class="mt-1 text-xs text-red-600">El banco/caja destino es requerido</p>
+                }
+              </div> -->
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Comprobante <span class="text-red-500">*</span></label
+                >
+                <select
+                  formControlName="comprobante"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                >
+                  <option value="RECIBO_INTERNO">Recibo Interno</option>
+                  <option value="FACTURA_ELECTRONICA">Factura Electrónica</option>
+                  <option value="BOLETA_ELECTRONICA">Boleta Electrónica</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >N° de Comprobante <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="text"
+                  formControlName="numeroComprobante"
+                  placeholder="000009"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                />
+                @if (
+                  pagoForm.get('numeroComprobante')?.invalid &&
+                  pagoForm.get('numeroComprobante')?.touched
+                ) {
+                  <p class="mt-1 text-xs text-red-600">El N° de comprobante es requerido</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Forma de Pago <span class="text-red-500">*</span></label
+                >
+                <select
+                  formControlName="formaPago"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                >
+                  <option value="">Seleccione...</option>
+                  <option value="EFECTIVO">Efectivo</option>
+                  <option value="TRANSFERENCIA_BANCARIA">Transferencia Bancaria</option>
+                  <option value="QR">QR / Billetera móvil</option>
+                  <option value="TARJETA">Tarjeta</option>
+                </select>
+                @if (pagoForm.get('formaPago')?.invalid && pagoForm.get('formaPago')?.touched) {
+                  <p class="mt-1 text-xs text-red-600">La forma de pago es requerida</p>
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  {{
+                    ventaForm.get('tipoVenta')?.value === 'CREDITO'
+                      ? 'Monto que Paga Hoy (Bs.)'
+                      : 'Monto Total Venta'
+                  }}
+                  @if (ventaForm.get('tipoVenta')?.value === 'CREDITO') {
+                    <span class="text-red-500">*</span>
+                  }
+                </label>
+
+                @if (ventaForm.get('tipoVenta')?.value === 'CREDITO') {
+                  <input
+                    type="number"
+                    step="0.01"
+                    formControlName="montoPagadoHoy"
+                    placeholder="0.00"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                  />
+                  @if (
+                    pagoForm.get('montoPagadoHoy')?.invalid &&
+                    pagoForm.get('montoPagadoHoy')?.touched
+                  ) {
+                    <p class="mt-1 text-xs text-red-600">
+                      Ingrese el monto que el cliente paga hoy
+                    </p>
+                  }
+                  <p class="mt-1 text-xs text-gray-500">
+                    Si el Inicial (Bs. {{ getMontoInicial() | number: '1.2-2' }}) no está
+                    fraccionado, debe coincidir con este monto. Si está fraccionado, este es solo el
+                    primer abono del cronograma del Inicial.
+                  </p>
+                } @else {
+                  <input
+                    type="text"
+                    readonly
+                    [value]="'Bs. ' + (getMontoTotalPago() | number: '1.2-2')"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed text-sm"
+                  />
+                }
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Fecha y Hora de Pago <span class="text-red-500">*</span></label
+                >
+                <input
+                  type="datetime-local"
+                  formControlName="fechaHoraPago"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Código de Operación</label
+                >
+                <input
+                  type="text"
+                  formControlName="codigoOperacion"
+                  placeholder="Ej: 498471 - 27/09/2024"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Observación del Pago</label
+                >
+                <input
+                  type="text"
+                  formControlName="observacionPago"
+                  placeholder="Observación, nota, glosa... del pago"
+                  class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                />
+              </div>
+
+              <!-- Voucher: subida de imagen + preview -->
+              <div class="sm:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  <!-- Voucher en Imagen
+                  @if (!pagoForm.get('ventaSinPagoInmediato')?.value) {
+                    <span class="text-red-500">*</span>
+                  } -->
+                </label>
+                <div class="flex items-center gap-3">
+                  <label
+                    class="cursor-pointer bg-white border-2 border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    Seleccionar archivo
+                    <input
+                      type="file"
+                      accept="image/*"
+                      class="hidden"
+                      (change)="onVoucherSeleccionado($event)"
+                    />
+                  </label>
+                  @if (voucherFile()) {
+                    <span class="text-sm text-gray-600">{{ voucherFile()!.name }}</span>
+                    <button
+                      type="button"
+                      (click)="limpiarVoucher()"
+                      class="text-red-500 text-sm hover:underline"
+                    >
+                      Quitar
+                    </button>
+                  }
+                </div>
+
+                @if (voucherPreviewUrl()) {
+                  <div
+                    class="mt-4 border-2 border-dashed border-gray-300 rounded-lg p-4 flex justify-center bg-gray-50"
+                  >
+                    <img
+                      [src]="voucherPreviewUrl()"
+                      alt="Preview del voucher"
+                      class="max-h-80 rounded-lg shadow-md"
+                    />
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+        <!-- ══════════════ TAB: FINANCIACIÓN (solo si CRÉDITO) ══════════════ -->
+        @if (activeTab() === 'financiacion' && !financiacionBloqueada()) {
+          <div [formGroup]="financiacionForm">
+            <div class="flex gap-2 mb-6 border-b border-gray-200">
+              <button
+                type="button"
+                (click)="irASubTabFinanciacion('inicial')"
+                [class.border-emerald-500]="financiacionSubTab() === 'inicial'"
+                [class.text-emerald-600]="financiacionSubTab() === 'inicial'"
+                class="px-4 py-2 text-sm font-medium border-b-2 border-transparent"
+              >
+                Inicial
+              </button>
+              <button
+                type="button"
+                (click)="irASubTabFinanciacion('principal')"
+                [class.border-emerald-500]="financiacionSubTab() === 'principal'"
+                [class.text-emerald-600]="financiacionSubTab() === 'principal'"
+                class="px-4 py-2 text-sm font-medium border-b-2 border-transparent"
+              >
+                Principal
+              </button>
+              <button
+                type="button"
+                (click)="irASubTabFinanciacion('adicional')"
+                [class.border-emerald-500]="financiacionSubTab() === 'adicional'"
+                [class.text-emerald-600]="financiacionSubTab() === 'adicional'"
+                class="px-4 py-2 text-sm font-medium border-b-2 border-transparent"
+              >
+                Adicional
+              </button>
+            </div>
+
+            <!-- Sub-tab Inicial -->
+            @if (financiacionSubTab() === 'inicial') {
+              <div formGroupName="inicial" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Monto Total Inicial (Bs.) <span class="text-red-500">*</span></label
+                  >
+                  <input
+                    type="number"
+                    step="0.01"
+                    formControlName="montoInicial"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div class="flex items-center gap-3 sm:mt-8">
+                  <input
+                    type="checkbox"
+                    formControlName="fraccionado"
+                    (change)="onToggleInicialFraccionado()"
+                    id="inicialFraccionado"
+                    class="w-5 h-5 accent-emerald-500"
+                  />
+                  <label for="inicialFraccionado" class="text-sm text-gray-700"
+                    >Crear un Plan de Pagos del Inicial</label
+                  >
+                </div>
+                @if (financiacionForm.get('inicial.fraccionado')?.value) {
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Modalidad del Inicial</label
+                    >
+                    <select
+                      formControlName="modalidad"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                    >
+                      <option value="">Seleccione...</option>
+                      <option value="MENSUAL">Mensual</option>
+                      <option value="QUINCENAL">Quincenal</option>
+                      <option value="BIMESTRAL">Bimestral</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Cantidad de Pagos</label
+                    >
+                    <input
+                      type="number"
+                      formControlName="cantidadPagos"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Fecha de Inicio</label
+                    >
+                    <input
+                      type="date"
+                      formControlName="fechaInicio"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Sub-tab Principal -->
+            @if (financiacionSubTab() === 'principal') {
+              <div formGroupName="principal" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Modalidad del Principal <span class="text-red-500">*</span></label
+                  >
+                  <select
+                    formControlName="modalidad"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                  >
+                    <option value="">Seleccione...</option>
+                    <option value="MENSUAL">Mensual</option>
+                    <option value="BIMESTRAL">Bimestral</option>
+                    <option value="TRIMESTRAL">Trimestral</option>
+                    <option value="SEMESTRAL">Semestral</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Número de Cuotas <span class="text-red-500">*</span></label
+                  >
+                  <input
+                    type="number"
+                    formControlName="numeroCuotas"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2"
+                    >Fecha Pago Primera Cuota <span class="text-red-500">*</span></label
+                  >
+                  <input
+                    type="date"
+                    formControlName="fechaPrimeraCuota"
+                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                  />
+                </div>
+                <div
+                  class="sm:col-span-2 bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-sm text-emerald-800"
+                >
+                  Monto a financiar en el Principal:
+                  <strong>Bs. {{ getMontoPrincipal() | number: '1.2-2' }}</strong>
+                </div>
+              </div>
+            }
+
+            <!-- Sub-tab Adicional -->
+            @if (financiacionSubTab() === 'adicional') {
+              <div formGroupName="adicional" class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div class="flex items-center gap-3 sm:col-span-2">
+                  <input
+                    type="checkbox"
+                    formControlName="activo"
+                    (change)="onToggleAdicionalActivo()"
+                    id="adicionalActivo"
+                    class="w-5 h-5 accent-emerald-500"
+                  />
+                  <label for="adicionalActivo" class="text-sm text-gray-700"
+                    >Añadir un Plan de Pagos Adicional</label
+                  >
+                </div>
+                @if (financiacionForm.get('adicional.activo')?.value) {
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Monto Total Adicional (Bs.)</label
+                    >
+                    <input
+                      type="number"
+                      step="0.01"
+                      formControlName="montoAdicional"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Modalidad del Adicional</label
+                    >
+                    <select
+                      formControlName="modalidad"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                    >
+                      <option value="">Seleccione...</option>
+                      <option value="ANUAL">Anual</option>
+                      <option value="SEMESTRAL">Semestral</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Cantidad Pagos Adicionales</label
+                    >
+                    <input
+                      type="number"
+                      formControlName="cantidadPagos"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2"
+                      >Fecha Inicio del Adicional</label
+                    >
+                    <input
+                      type="date"
+                      formControlName="fechaInicio"
+                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                }
+              </div>
+            }
+
+            <!-- Resumen + alerta si excede el total -->
+            <div
+              class="mt-6 p-4 rounded-lg border"
+              [class.bg-red-50]="excedeElTotal()"
+              [class.border-red-300]="excedeElTotal()"
+              [class.bg-emerald-50]="!excedeElTotal()"
+              [class.border-emerald-200]="!excedeElTotal()"
+            >
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm text-center">
+                <div>
+                  <p class="text-gray-600">Inicial</p>
+                  <p class="text-lg font-bold">Bs. {{ getMontoInicial() | number: '1.2-2' }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-600">Principal</p>
+                  <p class="text-lg font-bold">Bs. {{ getMontoPrincipal() | number: '1.2-2' }}</p>
+                </div>
+                <div>
+                  <p class="text-gray-600">Adicional</p>
+                  <p class="text-lg font-bold">Bs. {{ getMontoAdicional() | number: '1.2-2' }}</p>
+                </div>
+              </div>
+              @if (excedeElTotal()) {
+                <p class="mt-3 text-center text-sm text-red-700 font-medium">
+                  ⚠ El Inicial + el Adicional supera el Precio Final de la venta.
+                </p>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- ── Botones ── -->
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 mt-6 border-t border-gray-200">
+          <button
+            type="button"
+            (click)="router.navigate(['/ventas/lista'])"
+            class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-semibold w-full sm:w-auto"
+          >
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            [disabled]="enviando()"
+            class="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg font-semibold w-full sm:w-auto disabled:bg-gray-400"
+          >
+            {{ enviando() ? 'Creando...' : 'Crear Venta' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- <app-selection-modal #clienteModal [config]="clienteModalConfig" [items]="clientes()" (selected)="selectCliente($event)"></app-selection-modal>
+<app-selection-modal #loteModal [config]="loteModalConfig" [items]="lotesParaModal()" (selected)="selectLote($event)"></app-selection-modal>
+<app-selection-modal #propiedadModal [config]="propiedadModalConfig" [items]="propiedades()" (selected)="selectPropiedad($event)"></app-selection-modal> -->
+
+<app-selection-modal
+  #clienteModal
+  [config]="clienteModalConfig"
+  [items]="clientes()"
+  (selected)="selectCliente($event)"
+>
+</app-selection-modal>
+<app-selection-modal
+  #loteModal
+  [config]="loteModalConfig"
+  [items]="lotesParaModal()"
+  (selected)="selectLote($event)"
+>
+</app-selection-modal>
+<app-selection-modal
+  #propiedadModal
+  [config]="propiedadModalConfig"
+  [items]="propiedades()"
+  (selected)="selectPropiedad($event)"
+>
+</app-selection-modal>

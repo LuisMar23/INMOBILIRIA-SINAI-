@@ -1,0 +1,499 @@
+<nav
+  class="bg-white/95 backdrop-blur-md shadow-lg sticky top-0 z-50 border-b border-emerald-100 animate-navbar-slide-down">
+  <div class="container mx-auto px-6 py-4">
+    <div class="flex items-center justify-between">
+      <a routerLink="/" class="group flex items-center gap-3 transition-all duration-500 hover:scale-105">
+        <div class="relative overflow-hidden rounded-xl">
+          <img src="assets/logoSinai.jpg" alt="Sinai Inmobiliaria"
+            class="h-12 w-auto rounded-xl shadow-lg transition-all duration-700 group-hover:scale-110 group-hover:rotate-3" />
+          <div
+            class="absolute inset-0 rounded-xl bg-gradient-to-tr from-emerald-500/30 via-emerald-400/20 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700">
+          </div>
+          <div
+            class="absolute -inset-1 rounded-xl bg-gradient-to-r from-emerald-400/10 via-teal-400/10 to-emerald-400/10 blur-sm opacity-0 group-hover:opacity-100 transition-all duration-1000">
+          </div>
+        </div>
+        <div class="hidden lg:block">
+          <h1
+            class="text-xl font-bold bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 bg-clip-text text-transparent animate-gradient">
+            Sinai
+          </h1>
+          <p class="text-xs text-emerald-600 font-medium tracking-wide">Inmobiliaria</p>
+        </div>
+      </a>
+
+      <ul class="hidden md:flex items-center gap-3">
+        <li>
+          <button routerLink="/"
+            class="nav-link relative px-5 py-2.5 font-medium rounded-xl transition-all duration-400 group overflow-hidden border"
+            [class.text-white]="isActiveRoute('/')" [class.text-emerald-700]="!isActiveRoute('/')"
+            [class.bg-gradient-to-r]="isActiveRoute('/')" [class.from-emerald-500]="isActiveRoute('/')"
+            [class.to-emerald-600]="isActiveRoute('/')" [class.shadow-lg]="isActiveRoute('/')"
+            [class.border-emerald-500]="isActiveRoute('/')" [class.bg-gradient-to-r]="!isActiveRoute('/')"
+            [class.from-emerald-100]="!isActiveRoute('/')" [class.to-teal-50]="!isActiveRoute('/')"
+            [class.border-emerald-200]="!isActiveRoute('/')" [class.shadow-sm]="!isActiveRoute('/')">
+
+            <!-- Fondo animado para hover -->
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/10 to-emerald-500/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+            </div>
+
+            <!-- Efecto de brillo para activo -->
+            <div *ngIf="isActiveRoute('/')"
+              class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-transparent opacity-50 animate-pulse-slow">
+            </div>
+
+            <div class="flex items-center gap-2 relative z-10">
+              <svg class="w-4 h-4 transition-all duration-300 group-hover:scale-125 group-hover:rotate-12" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6">
+                </path>
+              </svg>
+              <span class="font-semibold group-hover:font-bold transition-all duration-300">Inicio</span>
+            </div>
+
+            <!-- Indicador de activo -->
+            <div *ngIf="isActiveRoute('/')"
+              class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-white rounded-full"></div>
+          </button>
+        </li>
+
+        <li>
+          <button routerLink="/lotes"
+            class="nav-link relative px-5 py-2.5 font-medium rounded-xl transition-all duration-400 group overflow-hidden border"
+            [class.text-white]="isActiveRoute('/lotes')" [class.text-emerald-700]="!isActiveRoute('/lotes')"
+            [class.bg-gradient-to-r]="isActiveRoute('/lotes')" [class.from-emerald-500]="isActiveRoute('/lotes')"
+            [class.to-emerald-600]="isActiveRoute('/lotes')" [class.shadow-lg]="isActiveRoute('/lotes')"
+            [class.border-emerald-500]="isActiveRoute('/lotes')" [class.bg-gradient-to-r]="!isActiveRoute('/lotes')"
+            [class.from-emerald-100]="!isActiveRoute('/lotes')" [class.to-teal-50]="!isActiveRoute('/lotes')"
+            [class.border-emerald-200]="!isActiveRoute('/lotes')" [class.shadow-sm]="!isActiveRoute('/lotes')">
+
+            <!-- Fondo animado para hover -->
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/10 to-emerald-500/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+            </div>
+
+            <!-- Efecto de brillo para activo -->
+            <div *ngIf="isActiveRoute('/lotes')"
+              class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-transparent opacity-50 animate-pulse-slow">
+            </div>
+
+            <div class="flex items-center gap-2 relative z-10">
+              <svg class="w-4 h-4 transition-all duration-300 group-hover:scale-125 group-hover:-rotate-12" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7">
+                </path>
+              </svg>
+              <span class="font-semibold group-hover:font-bold transition-all duration-300">Lotes</span>
+            </div>
+
+            <!-- Indicador de activo -->
+            <div *ngIf="isActiveRoute('/lotes')"
+              class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-white rounded-full"></div>
+          </button>
+        </li>
+
+        <li>
+          <button routerLink="/propiedades"
+            class="nav-link relative px-5 py-2.5 font-medium rounded-xl transition-all duration-400 group overflow-hidden border"
+            [class.text-white]="isActiveRoute('/propiedades')" [class.text-emerald-700]="!isActiveRoute('/propiedades')"
+            [class.bg-gradient-to-r]="isActiveRoute('/propiedades')"
+            [class.from-emerald-500]="isActiveRoute('/propiedades')"
+            [class.to-emerald-600]="isActiveRoute('/propiedades')" [class.shadow-lg]="isActiveRoute('/propiedades')"
+            [class.border-emerald-500]="isActiveRoute('/propiedades')"
+            [class.bg-gradient-to-r]="!isActiveRoute('/propiedades')"
+            [class.from-emerald-100]="!isActiveRoute('/propiedades')"
+            [class.to-teal-50]="!isActiveRoute('/propiedades')"
+            [class.border-emerald-200]="!isActiveRoute('/propiedades')"
+            [class.shadow-sm]="!isActiveRoute('/propiedades')">
+
+            <!-- Fondo animado para hover -->
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/10 to-emerald-500/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+            </div>
+
+            <!-- Efecto de brillo para activo -->
+            <div *ngIf="isActiveRoute('/propiedades')"
+              class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-transparent opacity-50 animate-pulse-slow">
+            </div>
+
+            <div class="flex items-center gap-2 relative z-10">
+              <svg class="w-4 h-4 transition-all duration-300 group-hover:scale-125 group-hover:rotate-12" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path>
+              </svg>
+              <span class="font-semibold group-hover:font-bold transition-all duration-300">Propiedades</span>
+            </div>
+
+            <!-- Indicador de activo -->
+            <div *ngIf="isActiveRoute('/propiedades')"
+              class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-white rounded-full"></div>
+          </button>
+        </li>
+
+        <li>
+          <button routerLink="/urbanizaciones"
+            class="nav-link relative px-5 py-2.5 font-medium rounded-xl transition-all duration-400 group overflow-hidden border"
+            [class.text-white]="isActiveRoute('/urbanizaciones')"
+            [class.text-emerald-700]="!isActiveRoute('/urbanizaciones')"
+            [class.bg-gradient-to-r]="isActiveRoute('/urbanizaciones')"
+            [class.from-emerald-500]="isActiveRoute('/urbanizaciones')"
+            [class.to-emerald-600]="isActiveRoute('/urbanizaciones')"
+            [class.shadow-lg]="isActiveRoute('/urbanizaciones')"
+            [class.border-emerald-500]="isActiveRoute('/urbanizaciones')"
+            [class.bg-gradient-to-r]="!isActiveRoute('/urbanizaciones')"
+            [class.from-emerald-100]="!isActiveRoute('/urbanizaciones')"
+            [class.to-teal-50]="!isActiveRoute('/urbanizaciones')"
+            [class.border-emerald-200]="!isActiveRoute('/urbanizaciones')"
+            [class.shadow-sm]="!isActiveRoute('/urbanizaciones')">
+
+            <!-- Fondo animado para hover -->
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/10 to-emerald-500/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+            </div>
+
+            <!-- Efecto de brillo para activo -->
+            <div *ngIf="isActiveRoute('/urbanizaciones')"
+              class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-transparent opacity-50 animate-pulse-slow">
+            </div>
+
+            <div class="flex items-center gap-2 relative z-10">
+              <svg class="w-4 h-4 transition-all duration-300 group-hover:scale-125 group-hover:rotate-12" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                </path>
+              </svg>
+              <span class="font-semibold group-hover:font-bold transition-all duration-300">Urbanizaciones</span>
+            </div>
+
+            <!-- Indicador de activo -->
+            <div *ngIf="isActiveRoute('/urbanizaciones')"
+              class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-white rounded-full"></div>
+          </button>
+        </li>
+
+        <li>
+          <button routerLink="/promociones"
+            class="nav-link relative px-5 py-2.5 font-medium rounded-xl transition-all duration-400 group overflow-hidden border"
+            [class.text-white]="isActiveRoute('/promociones')" [class.text-emerald-700]="!isActiveRoute('/promociones')"
+            [class.bg-gradient-to-r]="isActiveRoute('/promociones')"
+            [class.from-emerald-500]="isActiveRoute('/promociones')"
+            [class.to-emerald-600]="isActiveRoute('/promociones')" [class.shadow-lg]="isActiveRoute('/promociones')"
+            [class.border-emerald-500]="isActiveRoute('/promociones')"
+            [class.bg-gradient-to-r]="!isActiveRoute('/promociones')"
+            [class.from-emerald-100]="!isActiveRoute('/promociones')"
+            [class.to-teal-50]="!isActiveRoute('/promociones')"
+            [class.border-emerald-200]="!isActiveRoute('/promociones')"
+            [class.shadow-sm]="!isActiveRoute('/promociones')">
+
+            <!-- Fondo animado para hover -->
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/10 to-emerald-500/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+            </div>
+
+            <!-- Efecto de brillo para activo -->
+            <div *ngIf="isActiveRoute('/promociones')"
+              class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-transparent opacity-50 animate-pulse-slow">
+            </div>
+
+            <div class="flex items-center gap-2 relative z-10">
+              <svg class="w-4 h-4 transition-all duration-300 group-hover:scale-125 group-hover:rotate-45" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7">
+                </path>
+              </svg>
+              <span class="font-semibold group-hover:font-bold transition-all duration-300">Promociones</span>
+            </div>
+
+            <!-- Indicador de activo -->
+            <div *ngIf="isActiveRoute('/promociones')"
+              class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-white rounded-full"></div>
+          </button>
+        </li>
+
+        <li>
+          <button routerLink="/contacto"
+            class="nav-link relative px-5 py-2.5 font-medium rounded-xl transition-all duration-400 group overflow-hidden border"
+            [class.text-white]="isActiveRoute('/contacto')" [class.text-emerald-700]="!isActiveRoute('/contacto')"
+            [class.bg-gradient-to-r]="isActiveRoute('/contacto')" [class.from-emerald-500]="isActiveRoute('/contacto')"
+            [class.to-emerald-600]="isActiveRoute('/contacto')" [class.shadow-lg]="isActiveRoute('/contacto')"
+            [class.border-emerald-500]="isActiveRoute('/contacto')"
+            [class.bg-gradient-to-r]="!isActiveRoute('/contacto')"
+            [class.from-emerald-100]="!isActiveRoute('/contacto')" [class.to-teal-50]="!isActiveRoute('/contacto')"
+            [class.border-emerald-200]="!isActiveRoute('/contacto')" [class.shadow-sm]="!isActiveRoute('/contacto')">
+
+            <!-- Fondo animado para hover -->
+            <div
+              class="absolute inset-0 bg-gradient-to-r from-emerald-500/0 via-emerald-400/10 to-emerald-500/0 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+            </div>
+
+            <!-- Efecto de brillo para activo -->
+            <div *ngIf="isActiveRoute('/contacto')"
+              class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-transparent opacity-50 animate-pulse-slow">
+            </div>
+
+            <div class="flex items-center gap-2 relative z-10">
+              <svg class="w-4 h-4 transition-all duration-300 group-hover:scale-125 group-hover:-rotate-12" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                </path>
+              </svg>
+              <span class="font-semibold group-hover:font-bold transition-all duration-300">Contacto</span>
+            </div>
+
+            <!-- Indicador de activo -->
+            <div *ngIf="isActiveRoute('/contacto')"
+              class="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-3 h-1 bg-white rounded-full"></div>
+          </button>
+        </li>
+      </ul>
+
+      <button
+        class="md:hidden relative w-10 h-10 focus:outline-none rounded-xl transition-all duration-300 flex items-center justify-center group border border-emerald-300 bg-gradient-to-r from-emerald-100 to-teal-50 hover:from-emerald-200 hover:to-teal-100"
+        (click)="toggleMenu()">
+
+        <!-- Fondo animado -->
+        <div
+          class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 via-teal-400/10 to-emerald-400/20 opacity-0 group-hover:opacity-100 transition-all duration-500">
+        </div>
+
+        <!-- Borde animado -->
+        <div
+          class="absolute inset-0 rounded-xl border-2 border-transparent group-hover:border-emerald-400 transition-all duration-500">
+        </div>
+
+        <svg *ngIf="!menuOpen()"
+          class="w-6 h-6 transition-all duration-500 group-hover:scale-125 group-hover:rotate-90 relative z-10 text-emerald-700 group-hover:text-emerald-600"
+          fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+
+        <svg *ngIf="menuOpen()"
+          class="w-6 h-6 transition-all duration-500 rotate-90 scale-125 relative z-10 text-emerald-600" fill="none"
+          stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+
+        <!-- Punto de notificación -->
+        <div class="absolute -top-1 -right-1 w-2 h-2 bg-emerald-500 rounded-full animate-ping opacity-75"></div>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="menuOpen()"
+    class="md:hidden bg-gradient-to-b from-white to-emerald-50/50 border-t border-emerald-100 animate-mobile-menu-slide">
+    <ul class="flex flex-col gap-2 px-4 py-4">
+      <li *ngFor="let item of mobileMenuItems; let i = index" [style.animation-delay]="'0.' + i + 's'"
+        class="animate-mobile-item-fade">
+        <button [routerLink]="item.route" [class.text-white]="isActiveRoute(item.route)"
+          [class.text-emerald-700]="!isActiveRoute(item.route)" [class.bg-gradient-to-r]="isActiveRoute(item.route)"
+          [class.from-emerald-500]="isActiveRoute(item.route)" [class.to-emerald-600]="isActiveRoute(item.route)"
+          [class.shadow-md]="isActiveRoute(item.route)" [class.border-emerald-500]="isActiveRoute(item.route)"
+          [class.bg-gradient-to-r]="!isActiveRoute(item.route)" [class.from-emerald-50]="!isActiveRoute(item.route)"
+          [class.to-teal-50]="!isActiveRoute(item.route)" [class.border-emerald-200]="!isActiveRoute(item.route)"
+          [class.shadow-sm]="!isActiveRoute(item.route)" (click)="toggleMenu()"
+          class="nav-link block px-4 py-4 font-medium rounded-xl transition-all duration-300 group relative overflow-hidden w-full text-left border">
+
+          <!-- Fondo animado -->
+          <div
+            class="absolute inset-0 bg-gradient-to-r from-emerald-500/10 via-teal-400/10 to-emerald-500/10 transform -translate-x-full group-hover:translate-x-full transition-transform duration-700">
+          </div>
+
+          <!-- Efecto de brillo para activo -->
+          <div *ngIf="isActiveRoute(item.route)"
+            class="absolute inset-0 rounded-xl bg-gradient-to-r from-emerald-400/20 to-transparent opacity-50"></div>
+
+          <span class="relative z-10 flex items-center gap-3">
+            <svg class="w-5 h-5 transition-all duration-300 group-hover:scale-125 group-hover:rotate-12" fill="none"
+              stroke="currentColor" viewBox="0 0 24 24">
+              <path [attr.d]="item.icon"></path>
+            </svg>
+            <span class="font-semibold transition-all duration-300 group-hover:font-bold group-hover:translate-x-2">{{
+              item.name }}</span>
+          </span>
+
+          <!-- Indicador activo -->
+          <div *ngIf="isActiveRoute(item.route)"
+            class="absolute left-0 top-1/2 transform -translate-y-1/2 w-1.5 h-8 bg-gradient-to-b from-white to-emerald-100 rounded-r-full">
+          </div>
+
+          <!-- Flecha animada -->
+          <div
+            class="absolute right-4 top-1/2 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300">
+            <svg class="w-4 h-4 text-emerald-500 group-hover:translate-x-1 transition-transform duration-300"
+              fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+            </svg>
+          </div>
+        </button>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<style>
+  @keyframes navbar-slide-down {
+    0% {
+      transform: translateY(-100%);
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 0.3;
+    }
+
+    100% {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+
+  .animate-navbar-slide-down {
+    animation: navbar-slide-down 0.7s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  }
+
+  @keyframes mobile-menu-slide {
+    0% {
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+
+    100% {
+      max-height: 500px;
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-mobile-menu-slide {
+    animation: mobile-menu-slide 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    overflow: hidden;
+  }
+
+  @keyframes mobile-item-fade {
+    0% {
+      opacity: 0;
+      transform: translateX(-30px);
+    }
+
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .animate-mobile-item-fade {
+    animation: mobile-item-fade 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    opacity: 0;
+  }
+
+  @keyframes gradient {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
+  .animate-gradient {
+    background-size: 200% 200%;
+    animation: gradient 3s ease infinite;
+  }
+
+  @keyframes pulse-slow {
+
+    0%,
+    100% {
+      opacity: 0.5;
+    }
+
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-slow 2s ease-in-out infinite;
+  }
+
+  /* Estilos para botones del navbar */
+  .nav-link {
+    cursor: pointer;
+    outline: none;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(5, 150, 105, 0.2);
+  }
+
+  .nav-link:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(5, 150, 105, 0.15);
+  }
+
+  /* Botones inactivos - más visibles */
+  .from-emerald-100 {
+    background-color: #d1fae5 !important;
+  }
+
+  .to-teal-50 {
+    background-color: #f0fdfa !important;
+  }
+
+  .text-emerald-700 {
+    color: #047857 !important;
+  }
+
+  .border-emerald-200 {
+    border-color: #a7f3d0 !important;
+  }
+
+  /* Botones activos - destacan mucho más */
+  .from-emerald-500 {
+    background-color: #10b981 !important;
+  }
+
+  .to-emerald-600 {
+    background-color: #059669 !important;
+  }
+
+  .border-emerald-500 {
+    border-color: #10b981 !important;
+  }
+
+  .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(5, 150, 105, 0.3), 0 4px 6px -2px rgba(5, 150, 105, 0.15) !important;
+  }
+
+  .shadow-sm {
+    box-shadow: 0 1px 3px 0 rgba(5, 150, 105, 0.1), 0 1px 2px 0 rgba(5, 150, 105, 0.06) !important;
+  }
+
+  .text-white {
+    color: white !important;
+  }
+
+  .hover\:from-emerald-200:hover {
+    background-color: #a7f3d0 !important;
+  }
+
+  .hover\:to-teal-100:hover {
+    background-color: #ccfbf1 !important;
+  }
+</style>

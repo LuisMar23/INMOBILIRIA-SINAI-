@@ -1,0 +1,179 @@
+<div class="min-h-screen bg-gray-100 py-8 px-4">
+    <div class="max-w-8xl mx-auto">
+        <!-- Header -->
+        <div class="bg-emerald-500 text-white p-6 rounded-t-2xl flex justify-between items-center shadow-lg">
+            <div class="flex items-center gap-3">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+
+                @if (propiedadSeleccionada()) {
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold">Detalles de la Propiedad</h2>
+                    <p class="text-emerald-100 text-sm">{{ propiedadSeleccionada()!.nombre }}</p>
+                </div>
+                } @else {
+                <div>
+                    <p class="text-gray-500">Cargando información de la propiedad...</p>
+                </div>
+                }
+            </div>
+            <button [routerLink]="['/propiedades']"
+                class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Volver
+            </button>
+        </div>
+
+        <!-- Contenido -->
+        <div class="bg-white rounded-b-2xl shadow-lg p-6 space-y-6">
+            @if (propiedadSeleccionada()) {
+            <!-- Tarjeta de Datos Compacta -->
+            <div class="bg-gray-50 rounded-xl p-5 space-y-4">
+                <!-- Encabezado de Información General -->
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Información General
+                </h3>
+
+                <!-- Datos en filas horizontales compactas -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- Lado Izquierdo: Tipo, Estado, Estado Propiedad, Precio -->
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Tipo:</span>
+                            <span [class]="getTipoBadgeClass(propiedadSeleccionada()!.tipo)">
+                                {{ propiedadSeleccionada()!.tipo }}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Estado:</span>
+                            <span [class]="getEstadoBadgeClass(propiedadSeleccionada()!.estado)">
+                                {{ propiedadSeleccionada()!.estado }}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Estado Prop.:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{
+                                propiedadSeleccionada()!.estadoPropiedad }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Precio:</span>
+                            <span class="text-sm font-bold text-emerald-600">Bs. {{ propiedadSeleccionada()!.precio |
+                                number : '1.2-2' }}</span>
+                        </div>
+                    </div>
+
+                    <!-- Lado Derecho: Ciudad, Tamaño, Habitaciones, Baños -->
+                    <div class="space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Ciudad:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ propiedadSeleccionada()!.ciudad
+                                }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Tamaño:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ propiedadSeleccionada()!.tamano }}
+                                m²</span>
+                        </div>
+                        @if (propiedadSeleccionada()!.habitaciones) {
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Habitaciones:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ propiedadSeleccionada()!.habitaciones
+                                }}</span>
+                        </div>
+                        }
+                        @if (propiedadSeleccionada()!.banos) {
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-medium text-gray-500 w-24">Baños:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ propiedadSeleccionada()!.banos
+                                }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Descripción (ocupa todo el ancho) -->
+                @if (propiedadSeleccionada()!.descripcion) {
+                <div class="pt-4 border-t border-gray-200">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Descripción
+                    </h3>
+                    <div class="text-sm text-gray-700 whitespace-pre-line leading-relaxed">
+                        {{ propiedadSeleccionada()!.descripcion }}
+                    </div>
+                </div>
+                }
+            </div>
+
+            <!-- Ubicación (en el grid de 2 columnas como estaba originalmente) -->
+            @if (propiedadSeleccionada()!.ubicacion) {
+            <div class="bg-gray-50 rounded-xl p-5">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    Ubicación
+                </h3>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Enlace de ubicación disponible</span>
+                    <a [href]="propiedadSeleccionada()!.ubicacion" target="_blank"
+                        class="bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                        Ver Mapa
+                    </a>
+                </div>
+            </div>
+            }
+
+            <!-- Galería de Archivos -->
+            <div class="bg-gray-50 rounded-xl p-5">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4-4 4 4 8-8 4 4M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Galería de Archivos
+                </h3>
+
+                @if (tieneArchivos()) {
+                <app-galeria [archivos]="getArchivos()" [urlServer]="urlServer" (eliminar)="eliminarImagen($event)">
+                </app-galeria>
+                } @else {
+                <div class="text-center py-8 text-gray-500">
+                    <svg class="w-12 h-12 mx-auto mb-3 text-gray-300" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4-4 4 4 8-8 4 4M4 20h16a2 2 0 002-2V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p>No hay archivos disponibles para esta propiedad</p>
+                </div>
+                }
+            </div>
+            } @else {
+            <!-- Estado de carga cuando no hay propiedad seleccionada -->
+            <div class="text-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+                <p class="text-gray-600 mt-4">Cargando información de la propiedad...</p>
+            </div>
+            }
+        </div>
+    </div>
+</div>

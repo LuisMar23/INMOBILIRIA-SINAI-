@@ -1,0 +1,41 @@
+<nav class="bg-gradient-to-br from-white to-gray-50 border-b border-gray-200 py-4">
+  <div class="container mx-auto px-4">
+    <ol class="flex items-center space-x-2 text-sm">
+      <li>
+        <a routerLink="/" class="flex items-center text-gray-500 hover:text-emerald-600 transition">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z">
+            </path>
+          </svg>
+        </a>
+      </li>
+
+      @for (crumb of breadcrumbs; track crumb; let last = $last) {
+      <li class="flex items-center space-x-2">
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+
+        @if (!last) {
+        <a [routerLink]="crumb.url" class="text-gray-500 hover:text-emerald-600 transition font-medium">
+          {{ crumb.label }}
+        </a>
+        }
+
+        @if (last) {
+        <span class="text-emerald-600 font-semibold flex items-center gap-1.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z">
+            </path>
+          </svg>
+          {{ crumb.label }}
+        </span>
+        }
+      </li>
+      }
+    </ol>
+  </div>
+</nav>

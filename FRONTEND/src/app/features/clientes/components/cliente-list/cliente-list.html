@@ -1,0 +1,447 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8"
+>
+  <div class="max-w-full mx-auto">
+    <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <fa-icon [icon]="faUsers" class="w-8 h-8 sm:w-10 sm:h-10 text-white"></fa-icon>
+          <div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
+              Gestión de Clientes
+            </h1>
+            <p class="text-emerald-100 text-xs sm:text-sm mt-1">
+              Administra los clientes del sistema
+            </p>
+          </div>
+        </div>
+
+        <button
+          [routerLink]="['/clientes/crear']"
+          class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-6 py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 w-full sm:w-auto justify-center sm:justify-start font-semibold"
+        >
+          <fa-icon [icon]="faPlus" class="text-sm"></fa-icon>
+          Nuevo Cliente
+        </button>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+      <div class="flex flex-col lg:flex-row justify-between items-center gap-4 mb-6">
+        <div class="w-full lg:w-1/3">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <fa-icon [icon]="faSearch" class="text-emerald-500"></fa-icon>
+            </div>
+            <input
+              type="text"
+              [ngModel]="searchTerm()"
+              (ngModelChange)="searchTerm.set($event)"
+              placeholder="Buscar clientes..."
+              class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+            />
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            (click)="exportarExcelTodosClientes()"
+            class="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 font-semibold"
+          >
+            <fa-icon [icon]="faFileExcel" class="text-sm"></fa-icon>
+            Exportar Excel
+          </button>
+        </div>
+      </div>
+
+      @if (isLoading()) {
+        <div class="text-center py-12">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"
+          ></div>
+          <p class="text-gray-600 mt-4">Cargando clientes...</p>
+        </div>
+      } @else {
+        <div class="hidden xl:block">
+          <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full table-fixed">
+              <thead class="bg-gradient-to-r from-emerald-500 to-emerald-600">
+                <tr>
+                  <!-- Nombre - Ancho fijo 280px -->
+                  <th
+                    class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors w-72"
+                    (click)="columns[0].sortable ? sort(columns[0].key) : null"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-semibold">
+                        {{ columns[0].label }}
+                      </span>
+                      @if (columns[0].sortable) {
+                        <div class="flex flex-col justify-center h-4">
+                          <svg
+                            class="w-3 h-3 transition-transform"
+                            [class]="getClaseFlecha(columns[0].key)"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 15l7-7 7 7"
+                            />
+                          </svg>
+                        </div>
+                      }
+                    </div>
+                  </th>
+
+                  <!-- CI - Ancho fijo 120px -->
+                  <th
+                    class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors w-32"
+                    (click)="columns[1].sortable ? sort(columns[1].key) : null"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-semibold">
+                        {{ columns[1].label }}
+                      </span>
+                      @if (columns[1].sortable) {
+                        <div class="flex flex-col justify-center h-4">
+                          <svg
+                            class="w-3 h-3 transition-transform"
+                            [class]="getClaseFlecha(columns[1].key)"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 15l7-7 7 7"
+                            />
+                          </svg>
+                        </div>
+                      }
+                    </div>
+                  </th>
+
+                  <!-- Teléfono - Ancho fijo 140px -->
+                  <th
+                    class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors w-36"
+                    (click)="columns[2].sortable ? sort(columns[2].key) : null"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-semibold">
+                        {{ columns[2].label }}
+                      </span>
+                      @if (columns[2].sortable) {
+                        <div class="flex flex-col justify-center h-4">
+                          <svg
+                            class="w-3 h-3 transition-transform"
+                            [class]="getClaseFlecha(columns[2].key)"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 15l7-7 7 7"
+                            />
+                          </svg>
+                        </div>
+                      }
+                    </div>
+                  </th>
+
+                  <!-- Dirección - Ancho fijo 200px -->
+                  <th
+                    class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors w-52"
+                    (click)="columns[3].sortable ? sort(columns[3].key) : null"
+                  >
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-semibold">
+                        {{ columns[3].label }}
+                      </span>
+                      @if (columns[3].sortable) {
+                        <div class="flex flex-col justify-center h-4">
+                          <svg
+                            class="w-3 h-3 transition-transform"
+                            [class]="getClaseFlecha(columns[3].key)"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M5 15l7-7 7 7"
+                            />
+                          </svg>
+                        </div>
+                      }
+                    </div>
+                  </th>
+
+                  <!-- Estado - Ancho fijo 120px -->
+                  <!-- <th class="px-6 py-4 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors w-32"
+                                    (click)="columns[4].sortable ? sort(columns[4].key) : null">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-sm font-semibold">
+                                            {{ columns[4].label }}
+                                        </span>
+                                        @if (columns[4].sortable) {
+                                        <div class="flex flex-col justify-center h-4">
+                                            <svg class="w-3 h-3 transition-transform" [class]="getClaseFlecha(columns[4].key)"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 15l7-7 7 7" />
+                                            </svg>
+                                        </div>
+                                        }
+                                    </div>
+                                </th> -->
+
+                  <!-- Acciones - Ancho fijo 160px -->
+                  <th
+                    class="px-6 py-4 text-center text-xs font-bold text-white uppercase tracking-wider w-40"
+                  >
+                    Acciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-100">
+                @for (cliente of getClientesPaginados(); track cliente.id) {
+                  <tr class="hover:bg-gray-50 transition-colors">
+                    <!-- Celda Nombre -->
+                    <td class="px-6 py-4 whitespace-nowrap w-72">
+                      <div class="flex items-center">
+                        <div class="flex-shrink-0 h-10 w-10">
+                          <div
+                            class="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center"
+                          >
+                            <fa-icon [icon]="faUserCircle" class="text-emerald-600"></fa-icon>
+                          </div>
+                        </div>
+                        <div class="ml-4 min-w-0">
+                          <div class="text-sm font-medium text-gray-900 truncate">
+                            {{ cliente.fullName }}
+                          </div>
+                          <!-- <div class="text-sm text-gray-500 truncate">{{ cliente.email || 'Sin email' }}</div> -->
+                        </div>
+                      </div>
+                    </td>
+
+                    <!-- Celda CI -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 w-32">
+                      <div class="truncate">{{ cliente.ci }}</div>
+                    </td>
+
+                    <!-- Celda Teléfono -->
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 w-36">
+                      <div class="flex items-center gap-1 truncate">
+                        <fa-icon
+                          [icon]="faPhone"
+                          class="text-gray-400 text-xs flex-shrink-0"
+                        ></fa-icon>
+                        <span class="truncate">{{ cliente.telefono }}</span>
+                      </div>
+                    </td>
+
+                    <!-- Celda Dirección -->
+                    <td class="px-6 py-4 text-sm text-gray-900 w-52">
+                      <div class="flex items-center gap-1 truncate">
+                        <fa-icon
+                          [icon]="faMapMarkerAlt"
+                          class="text-gray-400 text-xs flex-shrink-0"
+                        ></fa-icon>
+                        <span class="truncate">{{ cliente.direccion || 'Sin dirección' }}</span>
+                      </div>
+                    </td>
+
+                    <!-- Celda Estado -->
+                    <!-- <td class="px-6 py-4 whitespace-nowrap w-32">
+                                    <span [class]="getStatusClass(cliente.isActive)"
+                                        class="px-3 py-1 rounded-full text-xs font-bold truncate inline-block max-w-full">
+                                        {{ cliente.isActive ? 'Activo' : 'Inactivo' }}
+                                    </span>
+                                </td> -->
+
+                    <!-- Celda Acciones -->
+                    <td class="px-6 py-4 whitespace-nowrap text-center w-40">
+                      <div class="flex justify-center gap-2">
+                        <a
+                          [routerLink]="['/clientes/editar', cliente.id]"
+                          class="p-2 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors flex-shrink-0"
+                          title="Editar cliente"
+                        >
+                          <fa-icon [icon]="faUserEdit"></fa-icon>
+                        </a>
+
+                  <button (click)="generarPdfClienteIndividual(cliente)"
+    [disabled]="isLoadingPdf() === cliente.id"
+    class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex-shrink-0"
+    title="Descargar PDF">
+    <svg *ngIf="isLoadingPdf() !== cliente.id" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+    </svg>
+    <div *ngIf="isLoadingPdf() === cliente.id" class="animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent"></div>
+</button>
+
+                        <button
+                          (click)="deleteCliente(cliente)"
+                          class="p-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors flex-shrink-0"
+                          title="Eliminar cliente"
+                        >
+                          <fa-icon [icon]="faTrash"></fa-icon>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+
+                @if (filteredClientes().length === 0 && !isLoading()) {
+                  <tr>
+                    <td colspan="6" class="px-6 py-16 text-center text-gray-500">
+                      <div class="flex flex-col items-center gap-3">
+                        <fa-icon [icon]="faUserTimes" class="text-4xl text-gray-300"></fa-icon>
+                        <p class="text-lg font-semibold">No se encontraron clientes</p>
+                        <p class="text-sm">No hay clientes registrados en el sistema</p>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="xl:hidden space-y-4">
+          @for (cliente of getClientesPaginados(); track cliente.id) {
+            <!-- Card con ancho máximo limitado -->
+            <div
+              class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden w-full max-w-full"
+            >
+              <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 p-4">
+                <div class="flex justify-between items-start">
+                  <div class="min-w-0 flex-1">
+                    <h3 class="font-bold text-white text-lg truncate">{{ cliente.fullName }}</h3>
+                    <p class="text-emerald-100 text-sm truncate">CI: {{ cliente.ci }}</p>
+                  </div>
+                  <span
+                    [class]="getStatusClass(cliente.isActive)"
+                    class="px-2 py-1 text-xs font-medium rounded-full flex-shrink-0 truncate"
+                  >
+                    {{ cliente.isActive ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </div>
+              </div>
+              <div class="p-4 space-y-3">
+                <div class="flex items-center gap-2 text-sm truncate">
+                  <fa-icon [icon]="faPhone" class="text-gray-400 text-xs flex-shrink-0"></fa-icon>
+                  <span class="text-gray-800 truncate">{{ cliente.telefono }}</span>
+                </div>
+                <!-- <div class="flex items-center gap-2 text-sm truncate">
+                            <fa-icon [icon]="faEnvelope" class="text-gray-400 text-xs flex-shrink-0"></fa-icon>
+                            <span class="text-gray-800 truncate">{{ cliente.email || 'Sin email' }}</span>
+                        </div> -->
+                <div class="flex items-center gap-2 text-sm truncate">
+                  <fa-icon
+                    [icon]="faMapMarkerAlt"
+                    class="text-gray-400 text-xs flex-shrink-0"
+                  ></fa-icon>
+                  <span class="text-gray-800 truncate">{{
+                    cliente.direccion || 'Sin dirección'
+                  }}</span>
+                </div>
+                <div class="flex justify-end gap-2 mt-2">
+                  <a
+                    [routerLink]="['/clientes/editar', cliente.id]"
+                    class="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm transition transform hover:scale-105 truncate min-w-0 flex-1"
+                  >
+                    <fa-icon [icon]="faUserEdit" class="text-xs flex-shrink-0"></fa-icon>
+                    <span class="truncate">Editar</span>
+                  </a>
+                  <button
+                    (click)="generarPdfClienteIndividual(cliente)"
+                        [disabled]="isLoadingPdf() === cliente.id"
+                    class="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm transition transform hover:scale-105 truncate min-w-0 flex-1"
+                  >
+                    <svg
+                      class="w-3 h-3 flex-shrink-0"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    <span class="truncate">PDF</span>
+                  </button>
+                  <button
+                    (click)="deleteCliente(cliente)"
+                    class="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg text-sm font-medium shadow-sm transition transform hover:scale-105 truncate min-w-0 flex-1"
+                  >
+                    <fa-icon [icon]="faTrash" class="text-xs flex-shrink-0"></fa-icon>
+                    <span class="truncate">Eliminar</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+
+          @if (filteredClientes().length === 0 && !isLoading()) {
+            <div class="bg-white rounded-xl p-8 text-center w-full max-w-full">
+              <fa-icon [icon]="faUserTimes" class="text-5xl text-gray-300 mb-4"></fa-icon>
+              <p class="text-lg font-semibold text-gray-700 mb-2">No se encontraron clientes</p>
+              <p class="text-sm text-gray-500">No hay clientes registrados en el sistema</p>
+            </div>
+          }
+        </div>
+
+        <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-6 gap-4 px-2">
+          <div class="text-sm text-gray-600 text-center sm:text-left">
+            Mostrando {{ rangeStart() }} a {{ rangeEnd() }} de {{ total() }} clientes
+          </div>
+          <div class="flex items-center justify-center gap-1 sm:gap-2 flex-wrap">
+            <button
+              (click)="prevPage()"
+              [disabled]="currentPage() === 1"
+              class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg disabled:opacity-50 text-sm font-medium transition-colors"
+            >
+              <span class="hidden sm:inline">Anterior</span
+              ><i class="fas fa-chevron-left sm:hidden"></i>
+            </button>
+            @for (i of pageArray(); track i) {
+              <button
+                (click)="goToPage(i)"
+                [class.font-bold]="currentPage() === i"
+                [class.bg-emerald-500]="currentPage() === i"
+                [class.text-white]="currentPage() === i"
+                [class.shadow-md]="currentPage() === i"
+                class="px-3 py-2 border rounded-lg hover:bg-emerald-100 text-sm font-medium transition-all min-w-[40px]"
+              >
+                {{ i }}
+              </button>
+            }
+            <button
+              (click)="nextPage()"
+              [disabled]="currentPage() === totalPages()"
+              class="px-3 py-2 bg-gray-200 hover:bg-gray-300 rounded-lg disabled:opacity-50 text-sm font-medium transition-colors"
+            >
+              <span class="hidden sm:inline">Siguiente</span
+              ><i class="fas fa-chevron-right sm:hidden"></i>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

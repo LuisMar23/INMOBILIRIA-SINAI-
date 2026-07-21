@@ -1,0 +1,154 @@
+<nav
+  class="flex items-center justify-between bg-white shadow-md px-6 py-3 sticky top-0 z-30 border-b border-emerald-100"
+>
+  <!-- Logo a la izquierda -->
+  <div class="flex items-center gap-2">
+    <fa-icon [icon]="faLayerGroup" class="text-emerald-600 text-2xl"></fa-icon>
+    <span class="font-bold text-xl text-gray-800">Mi Sistema</span>
+  </div>
+
+  <!-- Todo agrupado a la derecha en desktop -->
+  <div class="flex items-center gap-6">
+    <!-- Desktop: Perfil, separador y logout -->
+
+    <!-- Desktop: Avatar con nombre -->
+    <button
+      (click)="toggleUserMenu()"
+      class="hidden md:flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition duration-200 border border-transparent hover:border-emerald-200"
+    >
+      <div
+        class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-md ring-2 ring-white"
+      >
+        {{ currentUser.username.charAt(0).toUpperCase() }}
+      </div>
+      <span class="text-gray-800 font-medium">
+        {{ currentUser.username }}
+      </span>
+    </button>
+    <div class="hidden md:flex items-center gap-4">
+  <button
+    (click)="volverAProyectos()"
+    class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-emerald-50 transition-all duration-200 text-gray-700 group cursor-pointer">
+    <fa-icon [icon]="faLayerGroup" class="text-emerald-500 group-hover:scale-110 transition-transform"></fa-icon>
+    <span class="font-medium group-hover:text-emerald-600">Proyectos</span>
+  </button>
+
+
+</div>
+    <div class="hidden md:flex items-center gap-4">
+      <a
+        [routerLink]="['/usuarios/perfil']"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-emerald-50 transition-all duration-200 text-gray-700 group cursor-pointer"
+      >
+        <fa-icon
+          [icon]="faUser"
+          class="text-emerald-500 group-hover:scale-110 transition-transform"
+        ></fa-icon>
+        <span class="font-medium group-hover:text-emerald-600">Perfil</span>
+      </a>
+
+      <div class="w-px h-6 bg-gray-200"></div>
+
+      <button
+        (click)="logout()"
+        class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-red-50 transition-all duration-200 text-gray-700 group"
+      >
+        <fa-icon
+          [icon]="faSignOutAlt"
+          class="text-red-500 group-hover:scale-110 transition-transform"
+        ></fa-icon>
+        <span class="font-medium group-hover:text-red-600">Salir</span>
+      </button>
+    </div>
+
+    <!-- Mobile: Solo avatar -->
+    <div #userMenuTrigger>
+      <button
+        (click)="toggleUserMenu()"
+        class="md:hidden flex items-center gap-2 px-3 py-2 rounded-full hover:bg-gray-100 transition duration-200 border border-transparent hover:border-emerald-200"
+      >
+        <div
+          class="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center font-bold shadow-md ring-2 ring-white"
+        >
+          {{ currentUser.username.charAt(0).toUpperCase() }}
+        </div>
+      </button>
+    </div>
+
+    <!-- Dropdown del Avatar (solo móvil) -->
+    <div class="relative md:hidden">
+      @if (isUserMenuOpen) {
+        <div
+          #userMenuDropdown
+          class="absolute right-0 mt-2 w-56 bg-white border border-emerald-100 rounded-2xl shadow-2xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
+        >
+          <!-- Nombre del usuario -->
+          <div class="px-4 py-3 border-b border-gray-100 bg-emerald-50">
+            <p class="font-semibold text-gray-800">{{ currentUser.username }}</p>
+            <p class="text-sm text-gray-500">{{ currentUser.email }}</p>
+          </div>
+<button
+  (click)="volverAProyectos(); toggleUserMenu()"
+  class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition-colors flex items-center gap-3 text-gray-700 border-b border-gray-100">
+  <fa-icon [icon]="faLayerGroup" class="text-emerald-500 w-5"></fa-icon>
+  <span class="font-medium">Proyectos</span>
+</button>
+          <button
+            [routerLink]="['/usuarios/perfil']"
+            (click)="toggleUserMenu()"
+            class="w-full text-left px-4 py-3 hover:bg-emerald-50 transition-colors flex items-center gap-3 text-gray-700 border-b border-gray-100"
+          >
+            <fa-icon [icon]="faUser" class="text-emerald-500 w-5"></fa-icon>
+            <span class="font-medium">Mi Perfil</span>
+          </button>
+
+          <button
+            (click)="logout()"
+            class="w-full text-left px-4 py-3 hover:bg-red-50 transition-colors flex items-center gap-3 text-red-600"
+          >
+            <fa-icon [icon]="faSignOutAlt" class="text-red-500 w-5"></fa-icon>
+            <span class="font-medium">Cerrar sesión</span>
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</nav>
+
+@if (showLogoutConfirmation) {
+  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div
+      class="bg-white rounded-xl shadow-2xl max-w-md w-full border border-emerald-100 animate-fadeIn"
+    >
+      <div class="p-6">
+        <div class="flex items-center justify-center mb-4">
+          <div class="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center">
+            <fa-icon [icon]="faSignOutAlt" class="text-emerald-600 text-xl"></fa-icon>
+          </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-center text-emerald-800 mb-2">
+          ¿Estás seguro de cerrar sesión?
+        </h3>
+        <p class="text-gray-600 text-center mb-6">
+          Serás redirigido a la página de inicio de sesión.
+        </p>
+
+        <div class="flex gap-3">
+          <button
+            (click)="cancelLogout()"
+            class="flex-1 px-4 py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium rounded-lg transition border border-emerald-200"
+          >
+            Cancelar
+          </button>
+          <button
+            (click)="logout()"
+            class="flex-1 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition"
+          >
+            Aceptar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+}

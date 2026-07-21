@@ -1,0 +1,542 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8">
+    <div class="max-w-full mx-auto">
+        <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-6 h-6 sm:w-8 sm:h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <div>
+                        <h1 class="text-lg sm:text-xl lg:text-2xl font-bold text-white">Gestión de Visitas</h1>
+                        <p class="text-emerald-100 text-xs sm:text-sm mt-1">Administra las visitas programadas de
+                            clientes</p>
+                    </div>
+                </div>
+
+                <button [routerLink]="['/visitas/crear']"
+                    class="flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-105 w-full sm:w-auto justify-center font-semibold text-sm sm:text-base">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Nueva Visita
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-b-2xl shadow-xl p-3 sm:p-4 lg:p-6">
+            <div class="mb-4 sm:mb-6">
+                <div class="relative max-w-md">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" fill="none" stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <input type="text" [ngModel]="searchTerm()" (ngModelChange)="searchTerm.set($event)"
+                        placeholder="Buscar visitas..."
+                        class="w-full pl-10 pr-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm" />
+                </div>
+            </div>
+
+            @if (cargando()) {
+            <div class="text-center py-8 sm:py-12">
+                <div class="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-emerald-500 mx-auto">
+                </div>
+                <p class="text-gray-600 mt-3 sm:mt-4 text-sm sm:text-base">Cargando visitas...</p>
+            </div>
+            } @else {
+            <div class="hidden lg:block">
+                <div class="overflow-x-auto rounded-lg border border-gray-200">
+                    <table class="w-full">
+                        <thead class="bg-gradient-to-r from-emerald-500 to-emerald-600">
+                            <tr>
+                                @for (col of columns; track col.key) {
+                                <th class="px-4 py-3 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors"
+                                    (click)="col.sortable ? cambiarOrden(col.key) : null">
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs font-semibold">
+                                            {{ col.label }}
+                                        </span>
+                                        @if (col.sortable) {
+                                        <div class="flex flex-col justify-center h-4">
+                                            <svg class="w-3 h-3 transition-transform" [class]="getClaseFlecha(col.key)"
+                                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M5 15l7-7 7 7" />
+                                            </svg>
+                                        </div>
+                                        }
+                                    </div>
+                                </th>
+                                }
+                                <th class="px-4 py-3 text-center text-xs font-bold text-white uppercase tracking-wider">
+                                    Acciones
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @for (visita of getVisitasPaginadas(); track visita.id) {
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-6 h-6 bg-emerald-100 rounded flex items-center justify-center">
+                                            <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-900 text-sm">#{{ visita.id }}</p>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div>
+                                        <p class="text-gray-900 font-medium text-sm">{{ visita.cliente?.fullName }}
+                                        </p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div>
+                                        <p class="text-gray-900 font-medium text-sm">{{ visita.asesor?.fullName }}
+                                        </p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span [class]="getTipoInmuebleBadgeClass(visita.inmuebleTipo)" class="text-xs">
+                                        {{ getTipoInmuebleText(visita.inmuebleTipo) }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <div>
+                                        <p class="text-gray-900 font-medium text-sm">{{ getInmuebleInfo(visita) }}</p>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-gray-600 font-semibold text-sm">
+                                    {{ formatFecha(visita.fechaVisita) }}
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap">
+                                    <span [class]="getEstadoBadgeClass(visita.estado)" class="text-xs">
+                                        {{ getEstadoText(visita.estado) }}
+                                    </span>
+                                </td>
+                                <td class="px-4 py-3 whitespace-nowrap text-center">
+                                    <div class="flex justify-center gap-1">
+                                        <button
+                                            class="p-1.5 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                            [routerLink]="['/visitas/editar', visita.id]" title="Editar">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600 hover:bg-emerald-100 transition-colors"
+                                            (click)="verDetalles(visita)" title="Ver Detalles">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            class="p-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                            (click)="eliminarVisita(visita.id)" title="Eliminar">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+
+                            @if (filteredVisitas().length === 0 && !cargando()) {
+                            <tr>
+                                <td colspan="8" class="px-4 py-8 text-center">
+                                    <div class="flex flex-col items-center gap-2 text-gray-500">
+                                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                        </svg>
+                                        <p class="text-base font-semibold">No hay visitas registradas</p>
+                                        <p class="text-xs">Haz clic en "Nueva Visita" para comenzar</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Vista móvil -->
+            <div class="lg:hidden space-y-3">
+                @for (visita of getVisitasPaginadas(); track visita.id) {
+                <div
+                    class="bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+                    <!-- Header de la card -->
+                    <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 p-3">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 min-w-0">
+                                <h3 class="font-bold text-white text-base truncate">Visita #{{ visita.id }}</h3>
+                                <p class="text-emerald-100 text-xs truncate">Cliente: {{ visita.cliente?.fullName }}
+                                </p>
+                            </div>
+                            <div class="flex flex-col items-end gap-1">
+                                <span [class]="getEstadoBadgeClass(visita.estado)" class="text-xs">
+                                    {{ getEstadoText(visita.estado) }}
+                                </span>
+                                <span [class]="getTipoInmuebleBadgeClass(visita.inmuebleTipo)" class="text-xs">
+                                    {{ getTipoInmuebleText(visita.inmuebleTipo) }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenido de la card -->
+                    <div class="p-3 space-y-2">
+                        <!-- Información compacta -->
+                        <div class="grid grid-cols-2 gap-2 text-xs">
+                            <div class="flex items-center gap-1">
+                                <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                                <span class="text-gray-900">Asesor: {{ visita.asesor?.fullName }}</span>
+                            </div>
+                            <div class="flex items-center gap-1">
+                                <svg class="w-3 h-3 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor"
+                                    viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                                <span class="text-gray-900 font-medium">{{ formatFecha(visita.fechaVisita) }}</span>
+                            </div>
+                        </div>
+
+                        <!-- Información del inmueble -->
+                        <div class="pt-1 border-t border-gray-100">
+                            <p class="text-gray-500 text-xs mb-1">Inmueble</p>
+                            <p class="text-emerald-600 font-medium text-sm">{{ getInmuebleInfo(visita) }}</p>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="flex justify-between gap-1 pt-2 border-t border-gray-100">
+                            <button
+                                class="flex items-center justify-center gap-1 bg-blue-500 hover:bg-blue-600 text-white px-2 py-1.5 rounded text-xs font-medium shadow-sm transition flex-1"
+                                [routerLink]="['/visitas/editar', visita.id]">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Editar
+                            </button>
+                            <button
+                                class="flex items-center justify-center gap-1 bg-emerald-500 hover:bg-emerald-600 text-white px-2 py-1.5 rounded text-xs font-medium shadow-sm transition flex-1"
+                                (click)="verDetalles(visita)">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Detalles
+                            </button>
+                            <button
+                                class="flex items-center justify-center gap-1 bg-red-500 hover:bg-red-600 text-white px-2 py-1.5 rounded text-xs font-medium shadow-sm transition flex-1"
+                                (click)="eliminarVisita(visita.id)">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                                Eliminar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                }
+
+                @if (filteredVisitas().length === 0 && !cargando()) {
+                <div class="bg-white rounded-lg p-6 text-center">
+                    <svg class="w-12 h-12 text-gray-300 mb-3 mx-auto" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <p class="text-base font-semibold text-gray-700 mb-1">No hay visitas registradas</p>
+                    <p class="text-xs text-gray-500">Haz clic en "Nueva Visita" para comenzar</p>
+                </div>
+                }
+            </div>
+
+            <!-- Paginación -->
+            <div class="flex flex-col xs:flex-row xs:justify-between xs:items-center mt-4 gap-3 px-1">
+                <div class="text-xs text-gray-600 text-center xs:text-left order-2 xs:order-1">
+                    Mostrando {{ rangeStart() }} a {{ rangeEnd() }} de {{ total() }} visitas
+                </div>
+                <div class="flex items-center justify-center gap-1 order-1 xs:order-2">
+                    <button (click)="prevPage()" [disabled]="currentPage() === 1"
+                        class="px-2 py-1.5 bg-gray-200 hover:bg-gray-300 rounded text-xs font-medium transition-colors disabled:opacity-50 min-w-[60px]">
+                        <span class="hidden xs:inline">Anterior</span>
+                        <svg class="w-3 h-3 xs:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    @for (i of pageArray(); track i) {
+                    <button (click)="goToPage(i)" [class.font-bold]="currentPage() === i"
+                        [class.bg-emerald-500]="currentPage() === i" [class.text-white]="currentPage() === i"
+                        [class.shadow-md]="currentPage() === i"
+                        class="px-2 py-1.5 border rounded hover:bg-emerald-100 text-xs font-medium transition-all min-w-[32px]">
+                        {{ i }}
+                    </button>
+                    }
+                    <button (click)="nextPage()" [disabled]="currentPage() === totalPages()"
+                        class="px-2 py-1.5 bg-gray-200 hover:bg-gray-300 rounded text-xs font-medium transition-colors disabled:opacity-50 min-w-[60px]">
+                        <span class="hidden xs:inline">Siguiente</span>
+                        <svg class="w-3 h-3 xs:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Detalles -->
+@if (mostrarModal() && visitaSeleccionada()) {
+<div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
+    <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl max-h-[95vh] overflow-y-auto">
+        <!-- Header del Modal -->
+        <div class="bg-emerald-500 text-white p-6 rounded-t-2xl flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <div>
+                    <h2 class="text-xl md:text-2xl font-bold">Detalles de la Visita</h2>
+                    <p class="text-emerald-100 text-sm">ID: #{{ visitaSeleccionada()!.id }}</p>
+                </div>
+            </div>
+            <button (click)="cerrarModal()" class="text-white hover:text-emerald-200 transition-colors p-2">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Contenido del Modal -->
+        <div class="p-6 space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Información General -->
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Información General
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Tipo de Inmueble:</span>
+                            <span [class]="getTipoInmuebleBadgeClass(visitaSeleccionada()!.inmuebleTipo)">
+                                {{ getTipoInmuebleText(visitaSeleccionada()!.inmuebleTipo) }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Estado:</span>
+                            <span [class]="getEstadoBadgeClass(visitaSeleccionada()!.estado)">
+                                {{ getEstadoText(visitaSeleccionada()!.estado) }}
+                            </span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Fecha Visita:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{
+                                formatFecha(visitaSeleccionada()!.fechaVisita) }}</span>
+                        </div>
+                        @if (visitaSeleccionada()!.comentarios) {
+                        <div class="py-2">
+                            <span class="text-sm font-medium text-gray-500 block mb-2">Comentarios:</span>
+                            <div class="text-sm text-gray-700 whitespace-pre-line">{{ visitaSeleccionada()!.comentarios
+                                }}</div>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <!-- Información del Inmueble -->
+                @if (visitaSeleccionada()!.inmuebleTipo === 'LOTE' && visitaSeleccionada()!.lote) {
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                        </svg>
+                        Información del Lote
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Número:</span>
+                            <span class="text-sm font-semibold text-gray-900">Lote {{
+                                visitaSeleccionada()!.lote?.numeroLote }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Superficie:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.lote?.superficieM2 }} m²</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Precio Base:</span>
+                            <span class="text-sm text-gray-900">Bs. {{ visitaSeleccionada()!.lote?.precioBase |
+                                number:'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Estado:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.lote?.estado }}</span>
+                        </div>
+                        @if (visitaSeleccionada()!.lote?.urbanizacion) {
+                        <div class="py-2">
+                            <span class="text-sm font-medium text-gray-500 block mb-1">Urbanización:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{
+                                visitaSeleccionada()!.lote?.urbanizacion?.nombre }}</span>
+                            <p class="text-xs text-gray-600 mt-1">{{ visitaSeleccionada()!.lote?.urbanizacion?.ubicacion
+                                }}</p>
+                        </div>
+                        }
+                    </div>
+                </div>
+                } @else if (visitaSeleccionada()!.inmuebleTipo === 'PROPIEDAD' && visitaSeleccionada()!.propiedad) {
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                        </svg>
+                        Información de la Propiedad
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Nombre:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{
+                                visitaSeleccionada()!.propiedad?.nombre }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Tipo:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.propiedad?.tipo }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Tamaño:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.propiedad?.tamano }} m²</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Precio:</span>
+                            <span class="text-sm text-gray-900">Bs. {{ visitaSeleccionada()!.propiedad?.precio |
+                                number:'1.2-2' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Ubicación:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.propiedad?.ubicacion }}, {{
+                                visitaSeleccionada()!.propiedad?.ciudad }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Estado:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.propiedad?.estado }}</span>
+                        </div>
+                        @if (visitaSeleccionada()!.propiedad?.habitaciones) {
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Habitaciones:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.propiedad?.habitaciones
+                                }}</span>
+                        </div>
+                        }
+                        @if (visitaSeleccionada()!.propiedad?.banos) {
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Baños:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.propiedad?.banos }}</span>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Información del Cliente -->
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Información del Cliente
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Nombre:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ visitaSeleccionada()!.cliente?.fullName
+                                || 'N/A' }}</span>
+                        </div>
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Teléfono:</span>
+                            <span class="text-sm text-gray-900">{{ visitaSeleccionada()!.cliente?.telefono || 'N/A'
+                                }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Información del Asesor -->
+                <div class="bg-gray-50 rounded-xl p-5">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                        </svg>
+                        Información del Asesor
+                    </h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                            <span class="text-sm font-medium text-gray-500">Nombre:</span>
+                            <span class="text-sm font-semibold text-gray-900">{{ visitaSeleccionada()!.asesor?.fullName
+                                || 'N/A' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer del Modal -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row justify-end gap-3">
+            <button (click)="eliminarVisita(visitaSeleccionada()!.id)"
+                class="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto order-2 sm:order-1">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Eliminar Visita
+            </button>
+            <button [routerLink]="['/visitas/editar', visitaSeleccionada()!.id]" (click)="cerrarModal()"
+                class="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto order-1 sm:order-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Editar Visita
+            </button>
+            <button (click)="cerrarModal()"
+                class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto order-3">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>
+}

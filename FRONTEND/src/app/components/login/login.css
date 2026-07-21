@@ -1,0 +1,35 @@
+/* Estilos personalizados para el login */
+:host {
+  display: block;
+}
+
+/* Animación suave para el contenedor principal */
+.login-container {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Estilo personalizado para el checkbox */
+.custom-checkbox {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Efecto de focus mejorado */
+input:focus {
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+/* Loading state para el botón */
+button:disabled {
+  background: linear-gradient(135deg, #9ca3af, #6b7280) !important;
+}

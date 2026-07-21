@@ -1,0 +1,12 @@
+/* Estilos adicionales para scroll y responsividad */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 6px;
+}
+.overflow-x-auto::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #10b981;
+  border-radius: 3px;
+}

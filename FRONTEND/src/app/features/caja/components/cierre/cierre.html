@@ -1,0 +1,279 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8">
+  <div class="max-w-full mx-auto">
+    <!-- Header -->
+    <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          <div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Cierres de Caja</h1>
+            <p class="text-emerald-100 text-xs sm:text-sm mt-1">Registro de arqueos y cierres</p>
+          </div>
+        </div>
+
+        <a [routerLink]="['/caja']"
+          class="flex items-center justify-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-3 sm:px-6 sm:py-3 rounded-lg transition-all duration-200 backdrop-blur-sm font-semibold text-sm sm:text-base w-full sm:w-auto">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Volver a Cajas
+        </a>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+      <!-- Información de la Caja -->
+      @if (caja()) {
+      <div class="bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl p-4 sm:p-6 mb-6 border border-emerald-200">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div class="flex-1">
+            <h3 class="text-lg font-semibold text-emerald-900">{{ caja().nombre }}</h3>
+            <p class="text-emerald-700 text-sm sm:text-base">Saldo actual: <span class="font-bold">{{ getSaldoActual()
+                |
+                number:'1.0-2' }} Bs.</span></p>
+            <p class="text-emerald-600 text-sm">Estado:
+              <span [class]="caja().estado === 'ABIERTA' ? 
+                            'px-2 py-1 rounded-full text-xs font-bold bg-green-100 text-green-700' :
+                            'px-2 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700'">
+                {{ caja().estado }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Formulario de Cierre -->
+      @if (caja()?.estado === 'ABIERTA') {
+      <div class="bg-gray-50 rounded-xl p-4 sm:p-6 mb-6 border border-gray-200">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Registrar Cierre
+        </h3>
+        <form [formGroup]="form" (ngSubmit)="crearCierre()" class="space-y-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Tipo de Cierre</label>
+              <select formControlName="tipo"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm sm:text-base">
+                <option value="TOTAL">Total</option>
+                <option value="PARCIAL">Parcial</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Saldo Real (Bs.)</label>
+              <input formControlName="saldoReal" type="number" step="0.01" min="0"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 text-sm sm:text-base"
+                placeholder="0.00">
+              @if (form.get('saldoReal')?.invalid && form.get('saldoReal')?.dirty) {
+              <p class="text-red-500 text-xs mt-1">El saldo real es requerido</p>
+              }
+            </div>
+            <div class="flex items-end">
+              <button type="submit" [disabled]="form.invalid"
+                class="w-full bg-emerald-500 text-white px-4 py-2 rounded-lg hover:bg-emerald-600 disabled:opacity-50 transition-colors font-semibold text-sm sm:text-base">
+                Registrar Cierre
+              </button>
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones (Opcional)</label>
+            <textarea formControlName="observaciones" rows="2"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 resize-none text-sm sm:text-base"
+              placeholder="Observaciones adicionales..."></textarea>
+          </div>
+        </form>
+      </div>
+      } @else if (caja()?.estado === 'CERRADA') {
+      <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 sm:p-6 mb-6">
+        <div class="flex items-center gap-3">
+          <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.35 16.5c-.77.833.192 2.5 1.732 2.5z" />
+          </svg>
+          <div>
+            <h3 class="text-lg font-semibold text-yellow-800">Caja Cerrada</h3>
+            <p class="text-yellow-700 text-sm">La caja está cerrada. Debe abrirla para realizar cierres.</p>
+          </div>
+        </div>
+      </div>
+      }
+
+      <!-- Lista de Cierres -->
+      <div>
+        <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          Historial de Cierres
+        </h3>
+
+        @if (cargando()) {
+        <div class="text-center py-12">
+          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+          <p class="text-gray-600 mt-4 text-sm sm:text-base">Cargando cierres...</p>
+        </div>
+        } @else if (error()) {
+        <div class="text-center py-12">
+          <div class="bg-red-50 border border-red-200 rounded-xl p-6 max-w-md mx-auto">
+            <svg class="w-12 h-12 text-red-500 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <p class="text-red-700 font-semibold text-sm sm:text-base">{{ error() }}</p>
+          </div>
+        </div>
+        } @else {
+        <!-- Vista Desktop/Tablet - Tabla -->
+        <div class="hidden lg:block">
+          <div class="overflow-x-auto rounded-lg border border-gray-200">
+            <table class="w-full">
+              <thead class="bg-gradient-to-r from-emerald-500 to-emerald-600">
+                <tr>
+                  @for (col of columns; track col.key) {
+                  <th
+                    class="px-4 py-3 text-left text-xs font-bold text-white uppercase tracking-wider cursor-pointer hover:bg-emerald-600 transition-colors"
+                    (click)="col.sortable ? cambiarOrden(col.key) : null">
+                    <div class="flex items-center space-x-2">
+                      <span class="text-sm font-semibold">
+                        {{ col.label }}
+                      </span>
+                      @if (col.sortable) {
+                      <div class="flex flex-col justify-center h-4">
+                        <svg class="w-3 h-3 transition-transform" [class]="getClaseFlecha(col.key)" fill="none"
+                          stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                        </svg>
+                      </div>
+                      }
+                    </div>
+                  </th>
+                  }
+                  <th class="px-4 py-3 text-left text-xs font-bold text-white uppercase tracking-wider">
+                    Observaciones
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="bg-white divide-y divide-gray-200">
+                @for (cierre of filteredCierres(); track cierre.id) {
+                <tr class="hover:bg-gray-50 transition-colors">
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <div class="flex items-center gap-3">
+                      <div class="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <div>
+                        <p class="font-medium text-gray-900 text-sm sm:text-base">{{ cierre.fechaCierre |
+                          date:'dd/MM/yyyy' }}</p>
+                        <p class="text-sm text-gray-500">{{ cierre.fechaCierre | date:'HH:mm' }}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <span [class]="getTipoBadgeClass(cierre.tipo)" class="text-xs">
+                      {{ cierre.tipo }}
+                    </span>
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-gray-600 font-semibold text-sm sm:text-base">
+                    {{ cierre.saldoFinal | number:'1.0-2' }} Bs.
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap text-gray-600 font-semibold text-sm sm:text-base">
+                    {{ cierre.saldoReal | number:'1.0-2' }} Bs.
+                  </td>
+                  <td class="px-4 py-4 whitespace-nowrap">
+                    <span [class]="getDiferenciaClass(cierre.diferencia)" class="text-sm font-semibold">
+                      {{ cierre.diferencia >= 0 ? '+' : '' }}{{ cierre.diferencia | number:'1.0-2' }} Bs.
+                    </span>
+                  </td>
+                  <td class="px-4 py-4">
+                    <p class="text-gray-700 text-sm">{{ cierre.observaciones || 'Sin observaciones' }}</p>
+                  </td>
+                </tr>
+                }
+
+                @if (filteredCierres().length === 0 && !cargando()) {
+                <tr>
+                  <td colspan="6" class="px-4 py-12 text-center">
+                    <div class="flex flex-col items-center gap-3 text-gray-500">
+                      <svg class="w-16 h-16 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                      <p class="text-lg font-semibold">No hay cierres registrados</p>
+                      <p class="text-sm">Registra el primer cierre de caja</p>
+                    </div>
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Vista Mobile - Cards -->
+        <div class="lg:hidden space-y-4">
+          @for (cierre of filteredCierres(); track cierre.id) {
+          <div
+            class="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 p-4">
+              <div class="flex justify-between items-start">
+                <div class="flex-1">
+                  <h3 class="font-bold text-white text-lg">{{ cierre.fechaCierre | date:'dd/MM/yyyy' }}</h3>
+                  <p class="text-emerald-100 text-sm">{{ cierre.fechaCierre | date:'HH:mm' }}</p>
+                </div>
+                <span [class]="getTipoBadgeClass(cierre.tipo)" class="text-xs flex-shrink-0 ml-2">
+                  {{ cierre.tipo }}
+                </span>
+              </div>
+            </div>
+            <div class="p-4 space-y-3">
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">Saldo Final</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ cierre.saldoFinal | number:'1.0-2' }} Bs.</p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-500 mb-1">Saldo Real</p>
+                  <p class="text-sm font-semibold text-gray-900">{{ cierre.saldoReal | number:'1.0-2' }} Bs.</p>
+                </div>
+              </div>
+              <div>
+                <p class="text-xs text-gray-500 mb-1">Diferencia</p>
+                <p [class]="getDiferenciaClass(cierre.diferencia)" class="text-sm font-semibold">
+                  {{ cierre.diferencia >= 0 ? '+' : '' }}{{ cierre.diferencia | number:'1.0-2' }} Bs.
+                </p>
+              </div>
+              <div class="pt-2 border-t border-gray-100">
+                <p class="text-xs text-gray-500 mb-1">Observaciones</p>
+                <p class="text-sm text-gray-900">{{ cierre.observaciones || 'Sin observaciones' }}</p>
+              </div>
+            </div>
+          </div>
+          }
+
+          @if (filteredCierres().length === 0 && !cargando()) {
+          <div class="bg-white rounded-xl p-6 sm:p-8 text-center">
+            <svg class="w-16 h-16 text-gray-300 mb-4 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p class="text-lg font-semibold text-gray-700 mb-2">No hay cierres registrados</p>
+            <p class="text-sm text-gray-500">Registra el primer cierre de caja</p>
+          </div>
+          }
+        </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>

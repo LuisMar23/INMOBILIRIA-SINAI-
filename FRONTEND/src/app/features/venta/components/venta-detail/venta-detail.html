@@ -1,0 +1,843 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8"
+>
+  <div class="max-w-full mx-auto">
+    <!-- Header -->
+    <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <svg
+            class="w-8 h-8 sm:w-10 sm:h-10 text-white"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+            />
+          </svg>
+          <div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Detalles de Venta</h1>
+            <p class="text-emerald-100 text-xs sm:text-sm mt-1">
+              Información completa de la venta seleccionada
+            </p>
+          </div>
+        </div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <!-- Botón de Anticipo solo visible si es LOTE -->
+          @if (ventaData()?.lote) {
+            <button
+              (click)="descargarAnticipo()"
+              class="flex items-center justify-center gap-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition-all text-sm sm:text-base w-full sm:w-auto"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                />
+              </svg>
+              Descargar Anticipo
+            </button>
+          }
+          <button
+            [routerLink]="['/ventas/lista']"
+            class="flex items-center justify-center gap-2 bg-white text-emerald-500 font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-50 transition-all text-sm sm:text-base w-full sm:w-auto"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              />
+            </svg>
+            Volver al Listado
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+      @if (cargando()) {
+        <div class="text-center py-12">
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"
+          ></div>
+          <p class="text-gray-600 mt-4">Cargando venta...</p>
+        </div>
+      }
+
+      @if (error() && !cargando()) {
+        <div class="text-center py-12 text-gray-500">
+          <svg
+            class="w-16 h-16 text-gray-300 mb-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          <p class="text-lg">{{ error() }}</p>
+          <button
+            type="button"
+            (click)="obtenerVenta()"
+            class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      }
+
+      @if (ventaData() && !cargando()) {
+        <div class="space-y-6">
+          <!-- Información Principal -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Información de la Venta -->
+            <div class="bg-gray-50 rounded-xl p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                Información de la Venta
+              </h3>
+              <div class="space-y-3">
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span class="text-sm font-medium text-gray-500">ID:</span>
+                  <span class="text-sm font-semibold text-gray-900">#{{ ventaData()!.id }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span class="text-sm font-medium text-gray-500">Cliente:</span>
+                  <span class="text-sm font-semibold text-gray-900">{{
+                    ventaData()!.cliente?.fullName || '-'
+                  }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span class="text-sm font-medium text-gray-500">Asesor:</span>
+                  <span class="text-sm font-semibold text-gray-900">{{
+                    ventaData()!.asesor?.fullName || '-'
+                  }}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span class="text-sm font-medium text-gray-500">Precio Final:</span>
+                  <span class="text-sm font-bold text-gray-900"
+                    >Bs. {{ formatPrecio(ventaData()!.precioFinal) }}</span
+                  >
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                  <span class="text-sm font-medium text-gray-500">Estado:</span>
+                  <span [class]="getEstadoBadgeClass(ventaData()!.estado)" class="text-xs">
+                    {{ ventaData()!.estado }}
+                  </span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-sm font-medium text-gray-500">Fecha Creación:</span>
+                  <span class="text-sm font-semibold text-gray-900">{{
+                    formatDate(ventaData()!.createdAt)
+                  }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información del Inmueble -->
+            <div class="bg-gray-50 rounded-xl p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+                Información del Inmueble
+              </h3>
+              <div class="space-y-3">
+                @if (ventaData()!.lote) {
+                  <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">Tipo:</span>
+                    <span class="text-sm font-semibold text-gray-900">Lote</span>
+                  </div>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">Número:</span>
+                    <span class="text-sm font-semibold text-gray-900">{{
+                      ventaData()!.lote!.numeroLote || '-'
+                    }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">Urbanización:</span>
+                    <span class="text-sm font-semibold text-gray-700">{{
+                      ventaData()!.lote!.urbanizacion?.nombre || '-'
+                    }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-2">
+                    <span class="text-sm font-medium text-gray-500">Estado:</span>
+                    <span class="text-sm font-semibold text-gray-900">{{
+                      ventaData()!.lote!.estado || '-'
+                    }}</span>
+                  </div>
+                } @else if (ventaData()!.propiedad) {
+                  <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">Tipo:</span>
+                    <span class="text-sm font-semibold text-gray-900">Propiedad</span>
+                  </div>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">Nombre:</span>
+                    <span class="text-sm font-semibold text-gray-900">{{
+                      ventaData()!.propiedad!.nombre || '-'
+                    }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-2 border-b border-gray-200">
+                    <span class="text-sm font-medium text-gray-500">Tipo:</span>
+                    <span class="text-sm font-semibold text-gray-700">{{
+                      ventaData()!.propiedad!.tipo || '-'
+                    }}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-2">
+                    <span class="text-sm font-medium text-gray-500">Ubicación:</span>
+                    <span class="text-sm font-semibold text-gray-900">{{
+                      ventaData()!.propiedad!.ubicacion || '-'
+                    }}</span>
+                  </div>
+                } @else {
+                  <div class="text-center py-4 text-gray-500">
+                    <p>No hay información del inmueble</p>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Plan de Pagos -->
+          @if (ventaData()!.planPago) {
+            <div class="bg-gray-50 rounded-xl p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"
+                  />
+                </svg>
+                Plan de Pagos
+              </h3>
+
+              <!-- Resumen del Plan -->
+              <div class="bg-white rounded-lg p-4 mb-4 shadow-sm">
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                  <div class="text-center">
+                    <p class="text-sm text-gray-500">Total a Pagar</p>
+                    <p class="text-lg font-bold text-gray-900">
+                      Bs. {{ formatPrecio(ventaData()!.planPago!.total) }}
+                    </p>
+                  </div>
+                  <div class="text-center">
+                    <p class="text-sm text-gray-500">Total Pagado</p>
+                    <p class="text-lg font-bold text-gray-700">
+                      Bs. {{ formatPrecio(totalPagado()) }}
+                    </p>
+                  </div>
+                </div>
+                <div class="text-center mb-4">
+                  <p class="text-sm text-gray-500">Saldo Pendiente</p>
+                  <p class="text-xl font-bold text-blue-600">
+                    Bs. {{ formatPrecio(saldoPendiente()) }}
+                  </p>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                  <div
+                    class="bg-emerald-600 h-2 rounded-full"
+                    [style.width]="porcentajePagado() + '%'"
+                  ></div>
+                </div>
+                <div class="text-center">
+                  <span class="text-sm font-semibold text-gray-700"
+                    >{{ porcentajePagado() | number: '1.0-0' }}% Completado</span
+                  >
+                </div>
+              </div>
+
+              <!-- Detalles del Plan: Inicial / Principal / Estado / Vencimiento -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                  <p class="text-xs text-gray-500 mb-1">Monto Inicial</p>
+                  <p class="text-sm font-semibold text-gray-900">
+                    Bs. {{ formatPrecio(ventaData()!.planPago!.montoInicial) }}
+                  </p>
+                  @if (ventaData()!.planPago!.inicialFraccionado) {
+                    <p class="text-xs text-gray-500 mt-1">
+                      Fraccionado ({{
+                        (ventaData()!.planPago!.modalidadInicial || '').toLowerCase()
+                      }})
+                    </p>
+                  }
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                  <p class="text-xs text-gray-500 mb-1">Cuotas Principal</p>
+                  <p class="text-sm font-semibold text-gray-900">
+                    {{ ventaData()!.planPago!.cantidad_cuotas_principal || 0 }} x Bs.
+                    {{ formatPrecio(ventaData()!.planPago!.monto_cuota_principal || 0) }}
+                  </p>
+                  <p class="text-xs text-gray-500 mt-1">
+                    {{ (ventaData()!.planPago!.modalidadPrincipal || '').toLowerCase() }}
+                  </p>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                  <p class="text-xs text-gray-500 mb-1">Estado</p>
+                  <span
+                    [class]="getEstadoPlanPagoClass(ventaData()!.planPago!.estado)"
+                    class="text-xs"
+                  >
+                    {{ ventaData()!.planPago!.estado || '-' }}
+                  </span>
+                </div>
+                <div class="bg-white rounded-lg p-3 shadow-sm">
+                  <p class="text-xs text-gray-500 mb-1">Fecha Vencimiento</p>
+                  <p class="text-sm font-semibold text-gray-900">
+                    {{ formatDate(ventaData()!.planPago!.fechaVencimiento) }}
+                  </p>
+                  @if (
+                    ventaData()!.planPago!.dias_restantes !== null &&
+                    ventaData()!.planPago!.dias_restantes !== undefined
+                  ) {
+                    <p class="text-xs text-gray-500 mt-1">
+                      {{ ventaData()!.planPago!.dias_restantes }} días restantes
+                    </p>
+                  }
+                </div>
+              </div>
+
+              <!-- Bloque Adicional (solo si está activo) -->
+              @if (ventaData()!.planPago!.tieneAdicional) {
+                <div class="mt-4 bg-white rounded-lg p-3 shadow-sm">
+                  <p class="text-xs text-gray-500 mb-1">Adicional</p>
+                  <p class="text-sm font-semibold text-gray-900">
+                    Bs. {{ formatPrecio(ventaData()!.planPago!.montoAdicional ?? 0) }} —
+                    {{ (ventaData()!.planPago!.modalidadAdicional || '').toLowerCase() }}
+                  </p>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- SECCIÓN: Agregar Pago -->
+          @if (ventaData()!.planPago && saldoPendiente() > 0) {
+            <div class="bg-emerald-50 rounded-xl p-6 border border-emerald-200">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-emerald-900 flex items-center gap-2">
+                  <svg
+                    class="w-5 h-5 text-emerald-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  Registrar Nuevo Pago
+                </h3>
+                <button
+                  type="button"
+                  (click)="toggleFormPago()"
+                  class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm font-semibold transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                    />
+                  </svg>
+                  {{ mostrarFormPago() ? 'Ocultar' : 'Agregar Pago' }}
+                </button>
+              </div>
+
+              @if (mostrarFormPago()) {
+                <div class="bg-white rounded-lg p-4 border border-emerald-100">
+                  <form [formGroup]="pagoForm" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          Monto (Bs.) <span class="text-red-500">*</span>
+                        </label>
+                        <div class="relative">
+                          <span
+                            class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
+                            >Bs.</span
+                          >
+                          <input
+                            type="number"
+                            step="0.01"
+                            formControlName="monto"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                            placeholder="0.00"
+                            [max]="montoMaximoPago()"
+                          />
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">
+                          Máximo: Bs. {{ formatPrecio(montoMaximoPago()) }}
+                        </p>
+                      </div>
+
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          Fecha <span class="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="date"
+                          formControlName="fecha_pago"
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                        />
+                      </div>
+
+                      <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          Método <span class="text-red-500">*</span>
+                        </label>
+                        <select
+                          formControlName="metodoPago"
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                        >
+                          <option value="EFECTIVO">Efectivo</option>
+                          <option value="TRANSFERENCIA">Transferencia</option>
+                          <option value="TARJETA">Tarjeta</option>
+                        </select>
+                      </div>
+
+                      <div class="sm:col-span-2 lg:col-span-1">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                          Observación
+                        </label>
+                        <input
+                          type="text"
+                          formControlName="observacion"
+                          class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm"
+                          placeholder="Observación del pago..."
+                        />
+                      </div>
+                    </div>
+
+                    <div class="flex justify-end gap-3">
+                      <button
+                        type="button"
+                        (click)="toggleFormPago()"
+                        class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-md transition-all duration-200 font-semibold"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        (click)="registrarPago()"
+                        [disabled]="pagoForm.invalid || enviandoPago()"
+                        class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-md transition-all duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed"
+                      >
+                        {{ enviandoPago() ? 'Registrando...' : 'Registrar Pago' }}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Historial de Pagos -->
+          @if (ventaData()?.planPago?.pagos && ventaData()!.planPago!.pagos!.length > 0) {
+            <div class="bg-gray-50 rounded-xl p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                  />
+                </svg>
+                Historial de Pagos ({{ ventaData()!.planPago!.pagos!.length }})
+              </h3>
+              <div class="space-y-3 max-h-64 overflow-y-auto">
+                @for (pago of ventaData()!.planPago!.pagos!; track pago.id_pago_plan) {
+                  <div class="bg-white rounded-lg p-4 shadow-sm border border-gray-200">
+                    <div class="flex justify-between items-start mb-2">
+                      <div>
+                        <p class="font-semibold text-gray-900 text-sm">
+                          Bs. {{ formatPrecio(pago.monto) }}
+                        </p>
+                        <p class="text-xs text-gray-500">{{ formatDate(pago.fecha_pago) }}</p>
+                      </div>
+                      <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full"
+                        >Pagado</span
+                      >
+                    </div>
+                    @if (pago.observacion) {
+                      <p class="text-sm text-gray-600">{{ pago.observacion }}</p>
+                    }
+                    @if (pago.metodoPago) {
+                      <p class="text-xs text-gray-500 mt-1">Método: {{ pago.metodoPago }}</p>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Cronograma de Pagos -->
+          @if (cronograma().length > 0) {
+            <div class="bg-gray-50 rounded-xl p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Cronograma de Pagos
+              </h3>
+              <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        N° Cuota
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Tipo
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Fecha
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Monto (Bs.)
+                      </th>
+                      <th
+                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      >
+                        Estado
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="bg-white divide-y divide-gray-200">
+                    @for (cuota of cronograma(); track cuota.id_cuota) {
+                      <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {{ cuota.numero }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {{ cuota.tipo }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {{ formatDate(cuota.fecha) }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          Bs. {{ cuota.monto | number: '1.2-2' }}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                          <span
+                            [class]="
+                              'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' +
+                              getEstadoCuotaClass(cuota.estado)
+                            "
+                          >
+                            {{ cuota.estado }}
+                          </span>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          }
+
+          <!-- Voucher de Pago (archivos guardados directo en la venta, tabla Archivo) -->
+          @if (archivosVenta().length > 0) {
+            <div class="bg-gray-50 rounded-xl p-6">
+              <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                <svg
+                  class="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                Voucher de Pago
+              </h3>
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                @for (archivo of archivosVenta(); track archivo.id) {
+                  <div class="bg-white rounded-lg p-3 shadow-sm border border-gray-200">
+                    @if (esImagen(archivo)) {
+                      <a [href]="getUrlArchivo(archivo)" target="_blank">
+                        <img
+                          [src]="getUrlArchivo(archivo)"
+                          [alt]="archivo.nombreArchivo"
+                          class="w-full h-40 object-cover rounded-lg mb-2"
+                        />
+                      </a>
+                    } @else {
+                      <a
+                        [href]="getUrlArchivo(archivo)"
+                        target="_blank"
+                        class="w-full h-40 flex items-center justify-center bg-gray-100 rounded-lg mb-2"
+                      >
+                        <svg
+                          class="w-12 h-12 text-gray-400"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                      </a>
+                    }
+                    <p class="text-xs text-gray-600 truncate">
+                      {{ archivo.nombreArchivo || 'Voucher' }}
+                    </p>
+                    <a
+                      [href]="getUrlArchivo(archivo)"
+                      target="_blank"
+                      download
+                      class="text-xs text-emerald-600 hover:underline mt-1 inline-block"
+                    >
+                      Descargar
+                    </a>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+
+          <!-- Archivos Adjuntos (Recibos formales, tabla Recibo) -->
+          <div class="bg-gray-50 rounded-xl p-6">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <svg
+                class="w-5 h-5 text-gray-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Archivos Adjuntos
+            </h3>
+
+            @if (recibosCargando()) {
+              <div class="text-center py-4">
+                <div
+                  class="animate-spin rounded-full h-6 w-6 border-b-2 border-emerald-600 mx-auto"
+                ></div>
+                <p class="text-gray-600 mt-2 text-sm">Cargando archivos...</p>
+              </div>
+            } @else {
+              @if (recibosVenta().length > 0) {
+                <div class="space-y-3">
+                  @for (recibo of recibosVenta(); track recibo.id) {
+                    <div
+                      class="flex items-center justify-between bg-white p-4 rounded-lg border border-gray-200"
+                    >
+                      <div class="flex items-center gap-3">
+                        <svg
+                          class="w-8 h-8 text-emerald-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        <div>
+                          <p class="text-sm font-medium text-gray-900">
+                            {{ recibo.nombreArchivo || recibo.urlArchivo }}
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            Subido el {{ formatFecha(recibo.creado_en) }}
+                          </p>
+                        </div>
+                      </div>
+                      <div class="flex gap-2">
+                        <button
+                          (click)="descargarRecibo(recibo)"
+                          class="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
+                          title="Descargar archivo"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                            />
+                          </svg>
+                        </button>
+                        <button
+                          (click)="eliminarRecibo(recibo)"
+                          class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                          title="Eliminar archivo"
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <div class="text-center py-8 text-gray-500">
+                  <svg
+                    class="w-12 h-12 text-gray-300 mx-auto mb-3"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
+                  </svg>
+                  <p class="text-sm">No hay archivos adjuntos para esta venta</p>
+                </div>
+              }
+            }
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-200">
+            <button
+              (click)="generarPdfVenta()"
+              class="flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Generar PDF
+            </button>
+            <button
+              [routerLink]="['/ventas/editar', ventaData()!.id]"
+              class="flex items-center justify-center gap-2 bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+              Editar Venta
+            </button>
+            <button
+              (click)="eliminarVenta()"
+              class="flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+              Eliminar Venta
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>

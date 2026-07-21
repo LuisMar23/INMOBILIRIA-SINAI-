@@ -1,0 +1,779 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMINISTRADOR
+  ASESOR
+  SECRETARIA
+  CLIENTE
+  USUARIO
+}
+
+enum EstadoInmueble {
+  DISPONIBLE
+  RESERVADO
+  VENDIDO
+  CON_OFERTA
+}
+
+enum EstadoCotizacion {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+}
+
+enum EstadoVenta {
+  PENDIENTE
+  PAGADO
+  CANCELADO
+}
+
+enum EstadoReserva {
+  ACTIVA
+  VENCIDA
+  CANCELADA
+  CONVERTIDA_EN_VENTA
+}
+
+enum EstadoTicket {
+  ABIERTO
+  EN_PROCESO
+  CERRADO
+}
+
+enum EstadoVisita {
+  PENDIENTE
+  REALIZADA
+  CANCELADA
+}
+
+enum EstadoPlanFinanciamiento {
+  ACTIVO
+  FINALIZADO
+  CANCELADO
+}
+
+enum EstadoCuota {
+  PENDIENTE
+  PAGADA
+  VENCIDA
+  PARCIAL
+}
+
+enum MetodoPago {
+  EFECTIVO
+  TRANSFERENCIA
+  TARJETA
+}
+
+enum TipoInmueble {
+  LOTE
+  PROPIEDAD
+}
+
+enum PeriodicidadPago {
+  DIAS
+  SEMANAS
+  MESES
+}
+
+enum EstadoPlanPago {
+  ACTIVO
+  PAGADO
+  MOROSO
+  CANCELADO
+}
+
+enum TipoOperacion {
+  VENTA
+  RESERVA
+}
+
+enum EstadoCaja {
+  ABIERTA
+  CERRADA
+}
+
+enum TipoMovimiento {
+  INGRESO
+  EGRESO
+}
+
+enum TipoCierre {
+  PARCIAL
+  TOTAL
+}
+
+enum TipoPropiedad {
+  CASA
+  DEPARTAMENTO
+  GARZONIER
+  CUARTO
+}
+
+enum EstadoPropiedad {
+  VENTA
+  ALQUILER
+  ANTICREDITO
+}
+
+model User {
+  id            Int       @id @default(autoincrement())
+  uuid          String    @unique @default(uuid())
+  fullName      String    @map("full_name")
+  username      String?   @unique
+  ci            String    @unique
+  email         String?   @unique
+  passwordHash  String?   @map("password_hash")
+  avatarUrl     String?   @map("avatar_url")
+  telefono      String    @unique
+  direccion     String?
+  observaciones String?
+  role          UserRole  @default(CLIENTE)
+  isActive      Boolean   @default(true) @map("is_active")
+  lastLogin     DateTime? @map("last_login")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  estado        Boolean   @default(true)
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  urbanizacionesAsignadas UsuarioUrbanizacion[]
+  failedAttempts          Int                   @default(0) @map("failed_attempts")
+  lockUntil               DateTime?             @map("lock_until")
+  resetPasswordToken      String?               @map("reset_password_token")
+  resetPasswordExpires    DateTime?             @map("reset_password_expires")
+
+  cotizacionesComoAsesor Cotizacion[]     @relation("CotizacionesAsesor")
+  ventasComoCliente      Venta[]          @relation("VentasCliente")
+  ventasComoAsesor       Venta[]          @relation("VentasAsesor")
+  reservasComoCliente    Reserva[]        @relation("ReservasCliente")
+  reservasComoAsesor     Reserva[]        @relation("ReservasAsesor")
+  visitasComoCliente     Visita[]         @relation("VisitasCliente")
+  visitasComoAsesor      Visita[]         @relation("VisitasAsesor")
+  ticketsCreados         Ticket[]         @relation("TicketsCliente")
+  ticketsAtendidos       Ticket[]         @relation("TicketsAtendidos")
+  auditorias             Auditoria[]
+  ingresosRegistrados    Ingreso[]
+  egresosRegistrados     Egreso[]
+  cajasApertura          Caja[]           @relation("UsuarioApertura")
+  movimientosCaja        MovimientoCaja[]
+  cierresCaja            CierreCaja[]
+  recibosCreados         Recibo[]
+  lotesEncargado         Lote[]           @relation("LotesEncargado")
+  propiedadesEncargado   Propiedad[]      @relation("PropiedadesEncargado")
+}
+
+model Lote {
+  id               Int            @id @default(autoincrement())
+  uuid             String         @unique @default(uuid())
+  urbanizacionId   Int?
+  numeroLote       String         @map("numero_lote")
+  superficieM2     Decimal        @map("superficie_m2") @db.Decimal(10, 2)
+  precioBase       Decimal        @map("precio_base") @db.Decimal(12, 2)
+  precioM2         Decimal?       @map("precio_m2") @db.Decimal(10, 2)
+  descripcion      String?
+  ubicacion        String?
+  manzanoId        Int?
+  ciudad           String
+  medidaFrente     Decimal?       @map("medida_frente") @db.Decimal(10, 2)
+  medidaIzquierda  Decimal?       @map("medida_izquierda") @db.Decimal(10, 2)
+  medidaDerecha    Decimal?       @map("medida_derecha") @db.Decimal(10, 2)
+  medidaFondo      Decimal?       @map("medida_fondo") @db.Decimal(10, 2)
+  partida          String?        @map("partida")
+  colindaFrontal   String?        @map("colinda_frontal")
+  colindaDerecho   String?        @map("colinda_derecho")
+  colindaIzquierdo String?        @map("colinda_izquierdo")
+  colindaFondo     String?        @map("colinda_fondo")
+  esIndependiente  Boolean        @default(false) @map("es_independiente")
+  estado           EstadoInmueble @default(DISPONIBLE)
+  encargadoId      Int?           @map("encargado_id")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  urbanizacion  Urbanizacion?   @relation(fields: [urbanizacionId], references: [id])
+  encargado     User?           @relation("LotesEncargado", fields: [encargadoId], references: [id])
+  archivos      Archivo[]
+  cotizaciones  Cotizacion[]    @relation("CotizacionesLote")
+  ventas        Venta[]         @relation("VentasLote")
+  reservas      Reserva[]       @relation("ReservasLote")
+  visitas       Visita[]        @relation("VisitasLote")
+  manzano       Manzano?        @relation(fields: [manzanoId], references: [id])
+  LotePromocion LotePromocion[]
+}
+
+model Urbanizacion {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique @default(uuid())
+  nombre      String
+  ubicacion   String
+  ciudad      String
+  descripcion String?
+  maps        String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  //Nuevos Campos
+  sedeId           Int?     @map("sede_id")
+  superficieTotal  Decimal? @map("superficie_total") @db.Decimal(12, 2)
+  colindanciaNorte String?  @map("colindancia_norte")
+  colindanciaEste  String?  @map("colindancia_este")
+  colindanciaSur   String?  @map("colindancia_sur")
+  colindanciaOeste String?  @map("colindancia_oeste")
+
+  sede              Sede?                 @relation(fields: [sedeId], references: [id])
+  usuariosAsignados UsuarioUrbanizacion[]
+  lotes             Lote[]
+  archivos          Archivo[]
+  Promocion         Promocion[]
+  cajas             Caja[]
+  propiedades       Propiedad[]
+  manzanos          Manzano[]
+  egresos           Egreso[]
+}
+
+model Cotizacion {
+  id              Int              @id @default(autoincrement())
+  uuid            String           @unique @default(uuid())
+  nombreCliente   String           @map("nombre_cliente")
+  contactoCliente String           @map("contacto_cliente")
+  detalle         String?          @map("detalle")
+  asesorId        Int
+  inmuebleTipo    TipoInmueble     @default(LOTE)
+  inmuebleId      Int
+  precioOfertado  Decimal          @map("precio_ofertado") @db.Decimal(12, 2)
+  estado          EstadoCotizacion @default(PENDIENTE)
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  asesor User  @relation("CotizacionesAsesor", fields: [asesorId], references: [id])
+  lote   Lote? @relation("CotizacionesLote", fields: [inmuebleId], references: [id], map: "fk_cotizacion_lote")
+}
+
+model Venta {
+  id           Int          @id @default(autoincrement())
+  uuid         String       @unique @default(uuid())
+  clienteId    Int
+  asesorId     Int
+  inmuebleTipo TipoInmueble @default(LOTE)
+
+  precioFinal   Decimal     @map("precio_final") @db.Decimal(12, 2)
+  estado        EstadoVenta @default(PENDIENTE)
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+  observaciones String?
+  loteId        Int?        @map("lote_id")
+  propiedadId   Int?        @map("propiedad_id")
+  cajaId        Int?        @map("caja_id")
+
+  cliente         User             @relation("VentasCliente", fields: [clienteId], references: [id])
+  asesor          User             @relation("VentasAsesor", fields: [asesorId], references: [id])
+  lote            Lote?            @relation("VentasLote", fields: [loteId], references: [id], map: "fk_venta_lote")
+  propiedad       Propiedad?       @relation("VentasPropiedad", fields: [propiedadId], references: [id], map: "fk_venta_propiedad")
+  caja            Caja?            @relation(fields: [cajaId], references: [id])
+  archivos        Archivo[]
+  ingresos        Ingreso[]
+  planPago        PlanPago?
+  recibos         Recibo[]
+  movimientosCaja MovimientoCaja[]
+}
+
+model Reserva {
+  id               Int           @id @default(autoincrement())
+  uuid             String        @unique @default(uuid())
+  clienteId        Int
+  asesorId         Int
+  inmuebleTipo     TipoInmueble  @default(LOTE)
+  inmuebleId       Int
+  fechaInicio      DateTime      @map("fecha_inicio")
+  fechaVencimiento DateTime      @map("fecha_vencimiento")
+  estado           EstadoReserva @default(ACTIVA)
+  createdAt        DateTime      @default(now()) @map("created_at")
+  updatedAt        DateTime      @updatedAt @map("updated_at")
+
+  cliente  User      @relation("ReservasCliente", fields: [clienteId], references: [id])
+  asesor   User      @relation("ReservasAsesor", fields: [asesorId], references: [id])
+  lote     Lote?     @relation("ReservasLote", fields: [inmuebleId], references: [id], map: "fk_reserva_lote")
+  archivos Archivo[]
+  recibos  Recibo[]
+}
+
+model Visita {
+  id           Int          @id @default(autoincrement())
+  uuid         String       @unique @default(uuid())
+  clienteId    Int
+  asesorId     Int
+  inmuebleTipo TipoInmueble @default(LOTE)
+  loteId       Int?         @map("lote_id")
+  propiedadId  Int?         @map("propiedad_id")
+  fechaVisita  DateTime     @map("fecha_visita")
+  estado       EstadoVisita @default(PENDIENTE)
+  comentarios  String?
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  cliente   User       @relation("VisitasCliente", fields: [clienteId], references: [id])
+  asesor    User       @relation("VisitasAsesor", fields: [asesorId], references: [id])
+  lote      Lote?      @relation("VisitasLote", fields: [loteId], references: [id])
+  propiedad Propiedad? @relation("VisitasPropiedad", fields: [propiedadId], references: [id])
+
+  @@map("visitas")
+}
+
+model Promocion {
+  id             Int      @id @default(autoincrement())
+  uuid           String   @unique @default(uuid())
+  titulo         String
+  descripcion    String?
+  descuento      Decimal  @db.Decimal(5, 2)
+  fechaInicio    DateTime @map("fecha_inicio")
+  fechaFin       DateTime @map("fecha_fin")
+  urbanizacionId Int?     @map("urbanizacion_id")
+  isActive       Boolean  @default(true) @map("is_active")
+  aplicadaATodos Boolean  @default(false) @map("aplicada_a_todos")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  urbanizacion   Urbanizacion?   @relation(fields: [urbanizacionId], references: [id])
+  lotesAfectados LotePromocion[]
+
+  @@map("promociones")
+}
+
+model LotePromocion {
+  id                 Int      @id @default(autoincrement())
+  uuid               String   @unique @default(uuid())
+  loteId             Int      @map("lote_id")
+  promocionId        Int      @map("promocion_id")
+  precioOriginal     Decimal  @db.Decimal(12, 2)
+  precioConDescuento Decimal  @db.Decimal(12, 2)
+  createdAt          DateTime @default(now()) @map("created_at")
+
+  lote      Lote      @relation(fields: [loteId], references: [id], onDelete: Cascade)
+  promocion Promocion @relation(fields: [promocionId], references: [id], onDelete: Cascade)
+
+  @@unique([loteId, promocionId])
+  @@map("lotes_promocion")
+}
+
+model Ticket {
+  id          Int          @id @default(autoincrement())
+  uuid        String       @unique @default(uuid())
+  clienteId   Int
+  asunto      String
+  mensaje     String
+  estado      EstadoTicket @default(ABIERTO)
+  atendidoPor Int?
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+
+  cliente  User  @relation("TicketsCliente", fields: [clienteId], references: [id])
+  atendido User? @relation("TicketsAtendidos", fields: [atendidoPor], references: [id])
+}
+
+model Auditoria {
+  id              Int      @id @default(autoincrement())
+  uuid            String   @unique @default(uuid())
+  usuarioId       Int?
+  accion          String
+  tablaAfectada   String   @map("tabla_afectada")
+  columnaAfectada String?  @map("columna_afectada")
+  registroId      Int?     @map("registro_id")
+  datosAntes      String?  @map("datos_antes")
+  datosDespues    String?  @map("datos_despues")
+  ip              String?
+  dispositivo     String?
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  usuario User? @relation(fields: [usuarioId], references: [id])
+}
+
+// model PlanPago {
+//   id_plan_pago      Int              @id @default(autoincrement())
+//   uuid              String           @unique @default(uuid())
+//   ventaId           Int              @unique
+//   total             Decimal          @db.Decimal(12, 2)
+//   monto_inicial     Decimal          @db.Decimal(12, 2)
+//   plazo             Int
+//   periodicidad      PeriodicidadPago
+//   fecha_inicio      DateTime
+//   fecha_vencimiento DateTime
+//   estado            EstadoPlanPago   @default(ACTIVO)
+//   creado_en         DateTime         @default(now())
+//   actualizado_en    DateTime         @updatedAt
+
+//   venta   Venta          @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+//   pagos   PagoPlanPago[]
+//   cuotas  Cuota[]
+//   recibos Recibo[]
+
+//   @@map("planes_pago")
+// }
+
+model PlanPago {
+  id_plan_pago      Int              @id @default(autoincrement())
+  uuid              String           @unique @default(uuid())
+  ventaId           Int              @unique
+  total             Decimal          @db.Decimal(12, 2)
+
+  // --- Bloque Inicial ---
+  montoInicial            Decimal        @map("monto_inicial") @db.Decimal(12, 2)
+  inicialFraccionado      Boolean        @default(false) @map("inicial_fraccionado")
+  modalidadInicial        ModalidadPago? @map("modalidad_inicial")
+  cantidadPagosInicial    Int?           @map("cantidad_pagos_inicial")
+  fechaInicioInicial      DateTime?      @map("fecha_inicio_inicial")
+
+  // --- Bloque Principal (obligatorio) ---
+  modalidadPrincipal      ModalidadPago  @map("modalidad_principal")
+  numeroCuotas            Int            @map("numero_cuotas")
+  fechaPrimeraCuota       DateTime       @map("fecha_primera_cuota")
+
+  // --- Bloque Adicional (opcional) ---
+  tieneAdicional          Boolean        @default(false) @map("tiene_adicional")
+  montoAdicional          Decimal?       @map("monto_adicional") @db.Decimal(12, 2)
+  modalidadAdicional      ModalidadPago? @map("modalidad_adicional")
+  cantidadPagosAdicional  Int?           @map("cantidad_pagos_adicional")
+  fechaInicioAdicional    DateTime?      @map("fecha_inicio_adicional")
+  fechaVencimiento  DateTime?      @map("fecha_vencimiento")
+  estado            EstadoPlanPago @default(ACTIVO)
+  creado_en         DateTime       @default(now())
+  actualizado_en    DateTime       @updatedAt
+
+  venta   Venta          @relation(fields: [ventaId], references: [id], onDelete: Cascade)
+  pagos   PagoPlanPago[]
+  cuotas  Cuota[]
+  recibos Recibo[]
+
+  @@map("planes_pago")
+}
+enum TipoCuota {
+  INICIAL
+  PRINCIPAL
+  ADICIONAL
+}
+enum ModalidadPago {
+  UNICO
+  DIARIO
+  SEMANAL
+  QUINCENAL
+  MENSUAL
+  BIMESTRAL
+  TRIMESTRAL
+  SEMESTRAL
+  ANUAL
+}
+model Cuota {
+  id_cuota     Int         @id @default(autoincrement())
+  uuid         String      @unique @default(uuid())
+  plan_pago_id Int
+  tipo         TipoCuota   @default(PRINCIPAL)
+  numero       Int
+  fecha        DateTime
+  monto        Decimal     @db.Decimal(12, 2)
+  estado       EstadoCuota @default(PENDIENTE)
+  creado_en    DateTime    @default(now())
+
+  planPago   PlanPago    @relation(fields: [plan_pago_id], references: [id_plan_pago], onDelete: Cascade)
+  pagoCuotas PagoCuota[]
+
+  @@map("cuotas")
+}
+
+model PagoPlanPago {
+  id_pago_plan Int         @id @default(autoincrement())
+  uuid         String      @unique @default(uuid())
+  plan_pago_id Int
+  monto        Decimal     @db.Decimal(12, 2)
+  fecha_pago   DateTime    @default(now())
+  observacion  String?
+  creado_en    DateTime    @default(now())
+  metodoPago   MetodoPago?
+
+  planPago   PlanPago    @relation(fields: [plan_pago_id], references: [id_plan_pago], onDelete: Cascade)
+  pagoCuotas PagoCuota[]
+
+  @@map("pagos_plan_pago")
+}
+
+model PagoCuota {
+  id_pago_cuota  Int     @id @default(autoincrement())
+  pago_id        Int
+  cuota_id       Int
+  monto_aplicado Decimal @db.Decimal(12, 2)
+
+  pago  PagoPlanPago @relation(fields: [pago_id], references: [id_pago_plan], onDelete: Cascade)
+  cuota Cuota        @relation(fields: [cuota_id], references: [id_cuota], onDelete: Cascade)
+
+  @@unique([pago_id, cuota_id])
+  @@map("pagos_cuotas")
+}
+
+model CategoriaContable {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  nombre    String
+  tipo      String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  ingresos Ingreso[]
+  egresos  Egreso[]
+}
+
+model Ingreso {
+  id            Int      @id @default(autoincrement())
+  uuid          String   @unique @default(uuid())
+  fecha         DateTime @default(now())
+  monto         Decimal  @db.Decimal(12, 2)
+  descripcion   String
+  categoriaId   Int
+  ventaId       Int?
+  registradoPor Int      @map("registrado_por")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  categoria CategoriaContable @relation(fields: [categoriaId], references: [id])
+  venta     Venta?            @relation(fields: [ventaId], references: [id])
+  usuario   User              @relation(fields: [registradoPor], references: [id])
+}
+
+model Egreso {
+  id             Int      @id @default(autoincrement())
+  uuid           String   @unique @default(uuid())
+  fecha          DateTime @default(now())
+  monto          Decimal  @db.Decimal(12, 2)
+  descripcion    String
+  categoriaId    Int?
+  registradoPor  Int      @map("registrado_por")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  cajaId         Int?     @map("caja_id")
+  caja           Caja?    @relation(fields: [cajaId], references: [id])
+  urbanizacionId Int?     @map("urbanizacion_id")
+  metodoPago     String?  @map("metodo_pago")
+
+  categoria       CategoriaContable? @relation(fields: [categoriaId], references: [id])
+  usuario         User               @relation(fields: [registradoPor], references: [id])
+  urbanizacion    Urbanizacion?      @relation(fields: [urbanizacionId], references: [id])
+  archivos        Archivo[]
+  movimientosCaja MovimientoCaja[]
+}
+
+model BalanceMensual {
+  id            Int      @id @default(autoincrement())
+  uuid          String   @unique @default(uuid())
+  mes           Int
+  anio          Int
+  totalIngresos Decimal  @map("total_ingresos") @db.Decimal(12, 2)
+  totalEgresos  Decimal  @map("total_egresos") @db.Decimal(12, 2)
+  utilidad      Decimal  @db.Decimal(12, 2)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+}
+
+model Caja {
+  id                Int        @id @default(autoincrement())
+  uuid              String     @unique @default(uuid())
+  nombre            String     @db.VarChar(100)
+  saldoActual       Decimal    @default(0) @db.Decimal(12, 2)
+  montoInicial      Decimal    @db.Decimal(12, 2)
+  creadoEn          DateTime   @default(now())
+  actualizadoEn     DateTime   @updatedAt
+  estado            EstadoCaja @default(ABIERTA)
+  usuarioAperturaId Int
+  urbanizacionId    Int?       @map("urbanizacion_id") // ← nuevo
+
+  usuarioApertura User          @relation("UsuarioApertura", fields: [usuarioAperturaId], references: [id])
+  urbanizacion    Urbanizacion? @relation(fields: [urbanizacionId], references: [id]) // ← nuevo
+
+  movimientos MovimientoCaja[]
+  cierreCaja  CierreCaja[]
+  ventas      Venta[]
+  egresos     Egreso[]
+
+  @@map("cajas")
+}
+
+model MovimientoCaja {
+  id          Int            @id @default(autoincrement())
+  uuid        String         @unique @default(uuid())
+  cajaId      Int
+  usuarioId   Int
+  tipo        TipoMovimiento
+  monto       Decimal        @db.Decimal(12, 2)
+  fecha       DateTime       @default(now())
+  descripcion String?
+  referencia  String?
+  ventaId     Int?           @map("venta_id")
+  metodoPago  MetodoPago     @default(EFECTIVO)
+  caja        Caja           @relation(fields: [cajaId], references: [id])
+  usuario     User           @relation(fields: [usuarioId], references: [id])
+  egresoId    Int?           @map("egreso_id")
+  egreso      Egreso?        @relation(fields: [egresoId], references: [id])
+  venta       Venta?         @relation(fields: [ventaId], references: [id]) // 
+
+  @@map("movimientos_caja")
+}
+
+model CierreCaja {
+  id            Int        @id @default(autoincrement())
+  cajaId        Int
+  usuarioId     Int
+  fechaCierre   DateTime   @default(now())
+  saldoInicial  Decimal    @db.Decimal(12, 2)
+  saldoFinal    Decimal    @db.Decimal(12, 2)
+  saldoReal     Decimal    @db.Decimal(12, 2)
+  diferencia    Decimal    @db.Decimal(12, 2)
+  tipo          TipoCierre @default(TOTAL)
+  observaciones String?
+  caja          Caja       @relation(fields: [cajaId], references: [id])
+  usuario       User       @relation(fields: [usuarioId], references: [id])
+
+  @@map("cierre_caja")
+}
+
+model Archivo {
+  id             Int           @id @default(autoincrement())
+  uuid           String        @unique @default(uuid())
+  ventaId        Int?
+  reservaId      Int?
+  urbanizacionId Int?
+  propiedadId    Int?
+  urlArchivo     String
+  tipoArchivo    String?
+  nombreArchivo  String?
+  loteId         Int?
+  egresoId       Int?          @map("egreso_id")
+  creado_en      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+  venta          Venta?        @relation(fields: [ventaId], references: [id])
+  lote           Lote?         @relation(fields: [loteId], references: [id])
+  reserva        Reserva?      @relation(fields: [reservaId], references: [id])
+  urbanizacion   Urbanizacion? @relation(fields: [urbanizacionId], references: [id])
+  propiedad      Propiedad?    @relation(fields: [propiedadId], references: [id])
+  egreso         Egreso?       @relation(fields: [egresoId], references: [id])
+}
+
+model Recibo {
+  id                Int           @id @default(autoincrement())
+  uuid              String        @unique @default(uuid())
+  tipoOperacion     TipoOperacion
+  ventaId           Int?
+  reservaId         Int?
+  pagoPlanPagoId    Int?
+  urlArchivo        String
+  tipoArchivo       String?
+  nombreArchivo     String?
+  creado_en         DateTime      @default(now())
+  usuarioRegistroId Int
+  observaciones     String?
+
+  venta           Venta?    @relation(fields: [ventaId], references: [id])
+  reserva         Reserva?  @relation(fields: [reservaId], references: [id])
+  pagoPlanPago    PlanPago? @relation(fields: [pagoPlanPagoId], references: [id_plan_pago])
+  usuarioRegistro User      @relation(fields: [usuarioRegistroId], references: [id])
+
+  @@map("recibos")
+}
+
+model Propiedad {
+  id              Int             @id @default(autoincrement())
+  uuid            String          @unique @default(uuid())
+  tipo            TipoPropiedad
+  tipoInmueble    TipoInmueble    @default(PROPIEDAD) @map("tipo_inmueble")
+  nombre          String
+  tamano          Decimal         @db.Decimal(10, 2)
+  ubicacion       String
+  ciudad          String
+  descripcion     String?
+  habitaciones    Int?
+  banos           Int?
+  precio          Decimal         @db.Decimal(12, 2)
+  estado          EstadoInmueble  @default(DISPONIBLE)
+  estadoPropiedad EstadoPropiedad @default(VENTA)
+  encargadoId     Int?            @map("encargado_id")
+  urbanizacionId  Int?            @map("urbanizacion_id") // ← nuevo
+  createdAt       DateTime        @default(now()) @map("created_at")
+  updatedAt       DateTime        @updatedAt @map("updated_at")
+
+  archivos     Archivo[]
+  ventas       Venta[]       @relation("VentasPropiedad")
+  visitas      Visita[]      @relation("VisitasPropiedad")
+  encargado    User?         @relation("PropiedadesEncargado", fields: [encargadoId], references: [id])
+  urbanizacion Urbanizacion? @relation(fields: [urbanizacionId], references: [id]) // ← nuevo
+}
+
+model Modulo {
+  id      Int     @id @default(autoincrement())
+  uuid    String  @unique @default(uuid())
+  clave   String  @unique
+  nombre  String
+  padreId Int?    @map("padre_id")
+  activo  Boolean @default(true)
+
+  padre    Modulo?       @relation("ModuloHijos", fields: [padreId], references: [id])
+  hijos    Modulo[]      @relation("ModuloHijos")
+  permisos PermisoRole[]
+
+  @@map("modulos")
+}
+
+model PermisoRole {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique @default(uuid())
+  role        UserRole
+  moduloId    Int      @map("modulo_id")
+  tieneAcceso Boolean  @default(false) @map("tiene_acceso")
+
+  modulo Modulo @relation(fields: [moduloId], references: [id])
+
+  @@unique([role, moduloId])
+  @@map("permisos_role")
+}
+
+model UsuarioUrbanizacion {
+  id             Int @id @default(autoincrement())
+  usuarioId      Int @map("usuario_id")
+  urbanizacionId Int @map("urbanizacion_id")
+
+  usuario      User         @relation(fields: [usuarioId], references: [id], onDelete: Cascade)
+  urbanizacion Urbanizacion @relation(fields: [urbanizacionId], references: [id], onDelete: Cascade)
+
+  @@unique([usuarioId, urbanizacionId])
+  @@map("usuario_urbanizacion")
+}
+
+model Manzano {
+  id             Int      @id @default(autoincrement())
+  uuid           String   @unique @default(uuid())
+  nombre         String
+  urbanizacionId Int      @map("urbanizacion_id")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  urbanizacion Urbanizacion @relation(fields: [urbanizacionId], references: [id], onDelete: Cascade)
+  lotes        Lote[]
+
+  @@map("manzanos")
+}
+
+model Sede {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  nombre    String
+  direccion String?
+  telefono  String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // grupos        Grupo[]
+  urbanizacions Urbanizacion[]
+
+  @@map("sedes")
+}
+

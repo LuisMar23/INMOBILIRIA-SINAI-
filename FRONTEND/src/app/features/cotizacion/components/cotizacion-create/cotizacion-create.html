@@ -1,0 +1,187 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8">
+    <div class="max-w-full mx-auto">
+        <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Nueva Cotización</h1>
+                        <p class="text-emerald-100 text-xs sm:text-sm mt-1">Complete los datos para registrar una nueva
+                            cotización</p>
+                    </div>
+                </div>
+                <button [routerLink]="['/cotizaciones/lista']"
+                    class="flex items-center gap-2 bg-white text-emerald-500 font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-50 transition-all text-sm sm:text-base w-full sm:w-auto justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Volver al Listado
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+            <form [formGroup]="cotizacionForm" (submit)="handleFormSubmit($event)">
+                <div class="mb-8">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Información de la Cotización
+                    </h2>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Nombre del Cliente <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" formControlName="nombreCliente"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="Ingrese el nombre del cliente"
+                                    [class.border-red-500]="cotizacionForm.get('nombreCliente')?.invalid && cotizacionForm.get('nombreCliente')?.touched" />
+                                @if (cotizacionForm.get('nombreCliente')?.invalid &&
+                                cotizacionForm.get('nombreCliente')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El nombre del cliente es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Contacto del Cliente <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" formControlName="contactoCliente"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="Teléfono o email de contacto"
+                                    [class.border-red-500]="cotizacionForm.get('contactoCliente')?.invalid && cotizacionForm.get('contactoCliente')?.touched" />
+                                @if (cotizacionForm.get('contactoCliente')?.invalid &&
+                                cotizacionForm.get('contactoCliente')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El contacto del cliente es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Detalle (Opcional)
+                                </label>
+                                <input type="text" formControlName="detalle"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="Detalles adicionales" />
+                            </div>
+
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Lote <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" [value]="searchLote()"
+                                        (input)="searchLote.set($any($event.target).value)"
+                                        (focus)="toggleLotesDropdown()" (blur)="onLoteBlur()"
+                                        placeholder="Buscar lote por número, urbanización o precio..."
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base pr-10"
+                                        [class.border-red-500]="cotizacionForm.get('inmuebleId')?.invalid && cotizacionForm.get('inmuebleId')?.touched" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                @if (showLotesDropdown()) {
+                                <div
+                                    class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    @for (lote of filteredLotes(); track lote.id) {
+                                    <div (click)="selectLote(lote)"
+                                        class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                                        <div class="font-medium text-gray-900">{{ lote.numeroLote }}</div>
+                                        <div class="text-sm text-gray-600">{{ lote.urbanizacion?.nombre }} - {{
+                                            formatMonto(lote.precioBase) }} Bs.</div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span [class]="getEstadoBadgeClass(lote.estado)" class="text-xs">
+                                                {{ lote.estado }}
+                                            </span>
+                                            - {{ lote.superficieM2 }} m²
+                                        </div>
+                                    </div>
+                                    }
+                                    @if (filteredLotes().length === 0) {
+                                    <div class="px-4 py-3 text-gray-500 text-center">
+                                        No se encontraron lotes disponibles
+                                    </div>
+                                    }
+                                </div>
+                                }
+
+                                @if (cotizacionForm.get('inmuebleId')?.invalid &&
+                                cotizacionForm.get('inmuebleId')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El lote es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Precio Ofertado (Bs.) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">Bs.</span>
+                                    <input type="number" step="0.01" formControlName="precioOfertado"
+                                        class="w-full pl-12 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                        placeholder="0.00" min="0.01"
+                                        [class.border-red-500]="cotizacionForm.get('precioOfertado')?.invalid && cotizacionForm.get('precioOfertado')?.touched" />
+                                </div>
+                                @if (cotizacionForm.get('precioOfertado')?.invalid &&
+                                cotizacionForm.get('precioOfertado')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El precio ofertado debe ser mayor a 0</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Estado
+                                </label>
+                                <select formControlName="estado"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base">
+                                    <option value="PENDIENTE">Pendiente</option>
+                                    <option value="ACEPTADA">Aceptada</option>
+                                    <option value="RECHAZADA">Rechazada</option>
+                                </select>
+                            </div>
+
+                            <div class="hidden">
+                                <select formControlName="inmuebleTipo"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base">
+                                    <option value="LOTE">Lote</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200">
+                    <button type="button" (click)="router.navigate(['/cotizaciones/lista'])"
+                        class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="cotizacionForm.invalid || enviando()"
+                        class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ enviando() ? 'Creando Cotización...' : 'Crear Cotización' }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

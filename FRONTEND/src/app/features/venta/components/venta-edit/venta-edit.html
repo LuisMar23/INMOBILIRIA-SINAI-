@@ -1,0 +1,852 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8">
+    <div class="max-w-full mx-auto">
+        <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Editar Venta</h1>
+                        <p class="text-emerald-100 text-xs sm:text-sm mt-1">Modifica los datos de la venta seleccionada
+                        </p>
+                    </div>
+                </div>
+                <button type="button" [routerLink]="['/ventas/lista']"
+                    class="flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition-all text-sm sm:text-base w-full sm:w-auto justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Volver al Listado
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+            @if (cargando()) {
+            <div class="text-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+                <p class="text-gray-600 mt-4">Cargando venta...</p>
+            </div>
+            }
+
+            @if (error() && !cargando()) {
+            <div class="text-center py-12 text-gray-500">
+                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-lg">{{ error() }}</p>
+                <button type="button" (click)="obtenerVenta()"
+                    class="mt-4 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors">
+                    Reintentar
+                </button>
+            </div>
+            }
+
+            @if (ventaData() && !cargando()) {
+            <form [formGroup]="ventaForm" (submit)="handleFormSubmit($event)">
+                <div class="mb-8">
+                    <h2
+                        class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2 border-b-2 border-gray-200 pb-2">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Información de la Venta
+                    </h2>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Cliente <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" [value]="searchCliente()"
+                                        (input)="searchCliente.set($any($event.target).value)"
+                                        (focus)="toggleClientesDropdown()" (blur)="onClienteBlur()"
+                                        placeholder="Buscar cliente..."
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base pr-10" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @if (showClientesDropdown()) {
+                                <div
+                                    class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    @for (cliente of filteredClientes(); track cliente.id) {
+                                    <div (click)="selectCliente(cliente)"
+                                        class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                                        <div class="font-medium text-gray-900">{{ cliente.fullName }}</div>
+                                        @if (cliente.ci) {
+                                        <div class="text-sm text-gray-600">{{ cliente.ci }}</div>
+                                        }
+                                    </div>
+                                    }
+                                </div>
+                                }
+                            </div>
+@if (esAdministrador()) {
+<div class="relative">
+    <label class="block text-sm font-medium text-gray-700 mb-2">
+        Asesor
+    </label>
+    <div class="relative">
+        <input type="text" [value]="searchAsesor()"
+            (input)="searchAsesor.set($any($event.target).value)"
+            (focus)="toggleAsesoresDropdown()" (blur)="onAsesorBlur()"
+            placeholder="Buscar asesor..."
+            class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base pr-10" />
+        <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+        </div>
+    </div>
+    @if (showAsesoresDropdown()) {
+    <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+        @for (asesor of filteredAsesores(); track asesor.id) {
+        <div (click)="selectAsesor(asesor)"
+            class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+            <div class="font-medium text-gray-900">{{ asesor.fullName }}</div>
+            @if (asesor.email) {
+            <div class="text-sm text-gray-600">{{ asesor.email }}</div>
+            }
+        </div>
+        }
+    </div>
+    }
+</div>
+}
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Tipo de Inmueble <span class="text-red-500">*</span>
+                                </label>
+                                <select formControlName="inmuebleTipo"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base">
+                                    <option value="LOTE">Lote</option>
+                                    <option value="PROPIEDAD">Propiedad</option>
+                                </select>
+                            </div>
+
+                            @if (ventaForm.get('inmuebleTipo')?.value === 'LOTE') {
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Lote <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" [value]="searchLote()"
+                                        (input)="searchLote.set($any($event.target).value)"
+                                        (focus)="toggleLotesDropdown()" (blur)="onLoteBlur()"
+                                        placeholder="Buscar lote..."
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base pr-10" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @if (showLotesDropdown()) {
+                                <div
+                                    class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    @for (lote of filteredLotes(); track lote.id) {
+                                    <div (click)="selectLote(lote)"
+                                        class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                                        <div class="font-medium text-gray-900">{{ lote.numeroLote }} - {{
+                                            lote.urbanizacion?.nombre }}</div>
+                                        <div class="text-sm text-gray-600">Bs.{{ formatPrecio(lote.precioBase) }}</div>
+                                    </div>
+                                    }
+                                </div>
+                                }
+                            </div>
+                            }
+
+                            @if (ventaForm.get('inmuebleTipo')?.value === 'PROPIEDAD') {
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Propiedad <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <input type="text" [value]="searchPropiedad()"
+                                        (input)="searchPropiedad.set($any($event.target).value)"
+                                        (focus)="togglePropiedadesDropdown()" (blur)="onPropiedadBlur()"
+                                        placeholder="Buscar propiedad..."
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base pr-10" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @if (showPropiedadesDropdown()) {
+                                <div
+                                    class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    @for (propiedad of filteredPropiedades(); track propiedad.id) {
+                                    <div (click)="selectPropiedad(propiedad)"
+                                        class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                                        <div class="font-medium text-gray-900">{{ propiedad.nombre }} - {{
+                                            propiedad.tipo }}</div>
+                                        <div class="text-sm text-gray-600">Bs.{{ formatPrecio(propiedad.precio) }} - {{
+                                            propiedad.ubicacion }}</div>
+                                    </div>
+                                    }
+                                </div>
+                                }
+                            </div>
+                            }
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Precio Final (Bs.) <span class="text-red-500">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">Bs.</span>
+                                    <input type="number" step="0.01" formControlName="precioFinal"
+                                        class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                        placeholder="0.00" />
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                                <select formControlName="estado"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base">
+                                    <option value="PENDIENTE">Pendiente</option>
+                                    <option value="PAGADO">Pagado</option>
+                                    <option value="CANCELADO">Cancelado</option>
+                                </select>
+                            </div>
+
+                            <div class="sm:col-span-2 lg:col-span-3">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
+                                <textarea formControlName="observaciones" rows="3"
+                                    class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                    placeholder="Observaciones adicionales..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ══════════════ PLAN DE PAGO (nuevo schema: Inicial / Principal / Adicional) ══════════════ -->
+                @if (tienePlanPago()) {
+                <div class="mb-8">
+                    <h2
+                        class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2 border-b-2 border-gray-200 pb-2">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                        Plan de Pago
+                    </h2>
+
+                    <div class="bg-gray-50 rounded-xl p-4 sm:p-6 border border-gray-200">
+                        <div class="bg-white rounded-lg p-4 sm:p-6 mb-4 shadow-sm">
+                            <div class="grid grid-cols-2 gap-4 mb-4">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-500">Total a Pagar</p>
+                                    <p class="text-lg sm:text-xl font-bold text-gray-900">Bs. {{
+                                        ventaData()?.planPago?.total | number:'1.2-2' }}</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-500">Total Pagado</p>
+                                    <p class="text-lg sm:text-xl font-bold text-gray-700">Bs. {{ totalPagado() |
+                                        number:'1.2-2' }}</p>
+                                </div>
+                            </div>
+                            <div class="text-center mb-4">
+                                <p class="text-sm text-gray-500">Saldo Pendiente</p>
+                                <p class="text-xl sm:text-2xl font-bold text-blue-600">Bs. {{ saldoPendiente() |
+                                    number:'1.2-2' }}</p>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 sm:h-3 mb-2">
+                                <div class="bg-emerald-600 h-2 sm:h-3 rounded-full"
+                                    [style.width]="porcentajePagado() + '%'"></div>
+                            </div>
+                            <div class="text-center">
+                                <span class="text-sm font-semibold text-gray-700">{{ porcentajePagado() | number:'1.0-0'
+                                    }}% Completado</span>
+                            </div>
+                        </div>
+
+                        <!-- Detalles del Plan: Inicial / Principal / Estado / Vencimiento -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 mb-1">Monto Inicial</p>
+                                <p class="text-sm font-semibold text-gray-900">Bs. {{
+                                    ventaData()?.planPago?.montoInicial | number:'1.2-2' }}</p>
+                                @if (ventaData()?.planPago?.inicialFraccionado) {
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Fraccionado ({{ (ventaData()?.planPago?.modalidadInicial || '').toLowerCase() }})
+                                </p>
+                                }
+                            </div>
+                            <div class="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 mb-1">Cuotas Principal</p>
+                                <p class="text-sm font-semibold text-gray-900">
+                                    {{ ventaData()?.planPago?.cantidad_cuotas_principal || ventaData()?.planPago?.numeroCuotas || 0 }}
+                                    x Bs. {{ ventaData()?.planPago?.monto_cuota_principal | number:'1.2-2' }}
+                                </p>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    {{ (ventaData()?.planPago?.modalidadPrincipal || '').toLowerCase() }}
+                                </p>
+                            </div>
+                            <div class="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 mb-1">Estado</p>
+                                <span [class]="getEstadoPlanPagoClass(ventaData()?.planPago?.estado || '')"
+                                    class="text-xs">
+                                    {{ ventaData()?.planPago?.estado || '-' }}
+                                </span>
+                            </div>
+                            <div class="bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                                <p class="text-xs text-gray-500 mb-1">Fecha Vencimiento</p>
+                                <p class="text-sm font-semibold text-gray-900">{{
+                                    formatDate(ventaData()?.planPago?.fechaVencimiento) }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Bloque Adicional (solo si esta activo) -->
+                        @if (ventaData()?.planPago?.tieneAdicional) {
+                        <div class="mt-4 bg-white rounded-lg p-3 sm:p-4 shadow-sm">
+                            <p class="text-xs text-gray-500 mb-1">Adicional</p>
+                            <p class="text-sm font-semibold text-gray-900">
+                                Bs. {{ ventaData()?.planPago?.montoAdicional | number:'1.2-2' }} —
+                                {{ (ventaData()?.planPago?.modalidadAdicional || '').toLowerCase() }}
+                            </p>
+                        </div>
+                        }
+
+                        @if (tienePlanPago() && !mostrarFormMontoInicial()) {
+                        <div class="flex justify-end mt-4">
+                            <button type="button" (click)="editarMontoInicial()"
+                                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-200 text-sm font-semibold">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Editar Monto Inicial
+                            </button>
+                        </div>
+                        }
+                    </div>
+                </div>
+                }
+<!-- ══════════════ BOTONES: Editar Principal / Editar Adicional ══════════════ -->
+@if (tienePlanPago() && !mostrarFormPrincipal() && !mostrarFormAdicional()) {
+<div class="flex flex-col sm:flex-row justify-end gap-3 mb-8">
+    <button type="button" (click)="editarPrincipal()"
+        class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-200 text-sm font-semibold">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Editar Principal
+    </button>
+    <button type="button" (click)="editarAdicional()"
+        class="flex items-center gap-2 bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-200 text-sm font-semibold">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+        Editar Adicional
+    </button>
+</div>
+}
+
+<!-- ══════════════ FORM: EDITAR PRINCIPAL ══════════════ -->
+@if (mostrarFormPrincipal()) {
+<div class="mb-8">
+    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2 border-b-2 border-gray-200 pb-2">
+        <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+        </svg>
+        Editar Principal
+    </h2>
+
+    <div class="bg-white border-2 border-indigo-200 rounded-xl p-4 sm:p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Modificar el bloque Principal del Plan de Pago</h3>
+
+        <form [formGroup]="principalForm" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Modalidad <span class="text-red-500">*</span>
+                    </label>
+                    <select formControlName="modalidad"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-sm sm:text-base">
+                        <option value="">Seleccione...</option>
+                        <option value="DIARIO">Diario</option>
+                        <option value="SEMANAL">Semanal</option>
+                        <option value="QUINCENAL">Quincenal</option>
+                        <option value="MENSUAL">Mensual</option>
+                        <option value="BIMESTRAL">Bimestral</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Número de Cuotas <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" formControlName="numeroCuotas"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-sm sm:text-base" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha Primera Cuota <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" formControlName="fechaPrimeraCuota"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200 text-sm sm:text-base" />
+                </div>
+            </div>
+
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                Nota: si el Principal ya tiene cuotas pagadas o con abono parcial, el sistema rechazará este cambio.
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button type="button" (click)="cancelarEdicionPrincipal()"
+                    class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-md transition-all duration-200 font-semibold">
+                    Cancelar
+                </button>
+                <button type="button" (click)="actualizarPrincipal()"
+                    [disabled]="principalForm.invalid || enviandoPrincipal()"
+                    class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-md transition-all duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    {{ enviandoPrincipal() ? 'Actualizando...' : 'Actualizar Principal' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+
+<!-- ══════════════ FORM: EDITAR ADICIONAL ══════════════ -->
+@if (mostrarFormAdicional()) {
+<div class="mb-8">
+    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2 border-b-2 border-gray-200 pb-2">
+        <svg class="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+        </svg>
+        Editar Adicional
+    </h2>
+
+    <div class="bg-white border-2 border-purple-200 rounded-xl p-4 sm:p-6 mb-6">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Modificar el bloque Adicional del Plan de Pago</h3>
+
+        <form [formGroup]="adicionalForm" class="space-y-4">
+            <div class="flex items-center gap-3">
+                <input type="checkbox" formControlName="activo"
+                    (change)="onToggleActivoAdicional()" id="activoAdicional"
+                    class="w-5 h-5 accent-purple-500" />
+                <label for="activoAdicional" class="text-sm text-gray-700">
+                    Activar bloque Adicional
+                </label>
+            </div>
+
+            @if (adicionalForm.get('activo')?.value) {
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Monto Adicional (Bs.) <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">Bs.</span>
+                        <input type="number" step="0.01" formControlName="montoAdicional"
+                            class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 text-sm sm:text-base"
+                            placeholder="0.00" />
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Modalidad <span class="text-red-500">*</span>
+                    </label>
+                    <select formControlName="modalidad"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 text-sm sm:text-base">
+                        <option value="">Seleccione...</option>
+                        <option value="DIARIO">Diario</option>
+                        <option value="SEMANAL">Semanal</option>
+                        <option value="QUINCENAL">Quincenal</option>
+                        <option value="MENSUAL">Mensual</option>
+                        <option value="BIMESTRAL">Bimestral</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Cantidad de Pagos <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" formControlName="cantidadPagos"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 text-sm sm:text-base" />
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                        Fecha de Inicio <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" formControlName="fechaInicio"
+                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 text-sm sm:text-base" />
+                </div>
+            </div>
+            }
+
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                Nota: si el Adicional ya tiene cuotas pagadas o con abono parcial, el sistema rechazará este cambio.
+            </div>
+
+            <div class="flex justify-end gap-3">
+                <button type="button" (click)="cancelarEdicionAdicional()"
+                    class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-md transition-all duration-200 font-semibold">
+                    Cancelar
+                </button>
+                <button type="button" (click)="actualizarAdicional()"
+                    [disabled]="adicionalForm.invalid || enviandoAdicional()"
+                    class="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow-md transition-all duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    {{ enviandoAdicional() ? 'Actualizando...' : 'Actualizar Adicional' }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+}
+                <!-- ══════════════ FORM: EDITAR MONTO INICIAL (nuevo: incluye fraccionado) ══════════════ -->
+                @if (mostrarFormMontoInicial()) {
+                <div class="mb-8">
+                    <h2
+                        class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2 border-b-2 border-gray-200 pb-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                        </svg>
+                        Editar Monto Inicial
+                    </h2>
+
+                    <div class="bg-white border-2 border-blue-200 rounded-xl p-4 sm:p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Modificar el bloque Inicial del Plan de Pago
+                        </h3>
+
+                        <form [formGroup]="montoInicialForm" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Nuevo Monto Inicial (Bs.) <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">Bs.</span>
+                                        <input type="number" step="0.01" formControlName="nuevoMontoInicial"
+                                            class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base"
+                                            placeholder="0.00" min="0" [max]="ventaData()?.precioFinal || 0" />
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-500">Máximo: Bs. {{ (ventaData()?.precioFinal || 0)
+                                        | number:'1.2-2' }}</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Caja <span class="text-red-500">*</span>
+                                    </label>
+                                    <select formControlName="cajaId"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base">
+                                        <option value="">Seleccione una caja</option>
+                                        @for (caja of cajasActivas(); track caja.id) {
+                                        <option [value]="caja.id">{{ caja.nombre }} - Bs. {{ caja.saldoActual |
+                                            number:'1.2-2' }}</option>
+                                        }
+                                    </select>
+                                </div>
+
+                                <div class="sm:col-span-2 flex items-center gap-3">
+                                    <input type="checkbox" formControlName="fraccionado"
+                                        (change)="onToggleFraccionadoEdit()" id="fraccionadoEdit"
+                                        class="w-5 h-5 accent-blue-500" />
+                                    <label for="fraccionadoEdit" class="text-sm text-gray-700">
+                                        Crear/mantener un Plan de Pagos del Inicial (fraccionado)
+                                    </label>
+                                </div>
+
+                                @if (montoInicialForm.get('fraccionado')?.value) {
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Modalidad del Inicial <span class="text-red-500">*</span>
+                                    </label>
+                                    <select formControlName="modalidad"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base">
+                                        <option value="">Seleccione...</option>
+                                        <option value="DIARIO">Diario</option>
+                                        <option value="SEMANAL">Semanal</option>
+                                        <option value="QUINCENAL">Quincenal</option>
+                                        <option value="MENSUAL">Mensual</option>
+                                        <option value="BIMESTRAL">Bimestral</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Cantidad de Pagos <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="number" formControlName="cantidadPagos"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base" />
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Fecha de Inicio <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="date" formControlName="fechaInicio"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm sm:text-base" />
+                                </div>
+                                }
+                            </div>
+
+                            <div class="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-800">
+                                Nota: si el Inicial ya tiene cuotas pagadas o con abono parcial, el sistema rechazará
+                                este cambio. Solo se puede editar mientras el Inicial siga sin pagos aplicados.
+                            </div>
+
+                            <div class="flex justify-end gap-3">
+                                <button type="button" (click)="cancelarEdicionMontoInicial()"
+                                    class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-md transition-all duration-200 font-semibold">
+                                    Cancelar
+                                </button>
+                                <button type="button" (click)="actualizarMontoInicial()"
+                                    [disabled]="montoInicialForm.invalid || enviandoMontoInicial()"
+                                    class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-md transition-all duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                    {{ enviandoMontoInicial() ? 'Actualizando...' : 'Actualizar Monto' }}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                }
+
+                @if (tienePlanPago()) {
+                <div class="mb-8">
+                    <h2
+                        class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2 border-b-2 border-gray-200 pb-2">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                        </svg>
+                        Gestión de Pagos
+                    </h2>
+
+                    @if (saldoPendiente() > 0) {
+                    <div class="flex justify-end mb-6">
+                        <button type="button" (click)="toggleFormPago()"
+                            class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-200 text-sm font-semibold">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                            </svg>
+                            {{ mostrarFormPago() ? 'Cancelar' : 'Agregar Pago' }}
+                        </button>
+                    </div>
+                    }
+
+                    @if (mostrarFormPago() || mostrarFormEditarPago()) {
+                    <div class="bg-white border-2 border-emerald-200 rounded-xl p-4 sm:p-6 mb-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">
+                            {{ mostrarFormEditarPago() ? 'Editar Pago' : 'Registrar Nuevo Pago' }}
+                        </h3>
+
+                        <form [formGroup]="pagoForm" class="space-y-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Monto (Bs.) <span class="text-red-500">*</span>
+                                    </label>
+                                    <div class="relative">
+                                        <span
+                                            class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 font-medium">Bs.</span>
+                                        <input type="number" step="0.01" formControlName="monto"
+                                            class="w-full pl-10 pr-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                            placeholder="0.00" [max]="montoMaximoPago()" />
+                                    </div>
+                                    <p class="mt-1 text-xs text-gray-500">Máximo: Bs. {{ montoMaximoPago() |
+                                        number:'1.2-2' }}</p>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Fecha <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="date" formControlName="fecha_pago"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base" />
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        Método <span class="text-red-500">*</span>
+                                    </label>
+                                    <select formControlName="metodoPago"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base">
+                                        <option value="EFECTIVO">Efectivo</option>
+                                        <option value="TRANSFERENCIA">Transferencia</option>
+                                        <option value="TARJETA">Tarjeta</option>
+                                    </select>
+                                </div>
+
+                                <div class="sm:col-span-2 lg:col-span-4">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">Observación</label>
+                                    <input type="text" formControlName="observacion"
+                                        class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base"
+                                        placeholder="Ingrese observación del pago..." />
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-3">
+                                <button type="button" (click)="cancelarEdicionPago()"
+                                    class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white rounded-lg shadow-md transition-all duration-200 font-semibold">
+                                    Cancelar
+                                </button>
+                                <button type="button"
+                                    (click)="mostrarFormEditarPago() ? actualizarPago() : registrarPago()"
+                                    [disabled]="pagoForm.invalid || (mostrarFormEditarPago() ? enviandoEditarPago() : enviandoPago())"
+                                    class="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg shadow-md transition-all duration-200 font-semibold disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                    @if (mostrarFormEditarPago()) {
+                                    {{ enviandoEditarPago() ? 'Actualizando...' : 'Actualizar Pago' }}
+                                    } @else {
+                                    {{ enviandoPago() ? 'Registrando...' : 'Registrar Pago' }}
+                                    }
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    }
+
+                    @if (ventaData()?.planPago?.pagos && ventaData()!.planPago!.pagos!.length > 0) {
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Pagos Registrados</h3>
+                        <div class="space-y-3">
+                            @for (pago of ventaData()!.planPago!.pagos!; track pago.id_pago_plan) {
+                            <div
+                                class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                <div class="flex items-center gap-4 flex-1">
+                                    <div class="bg-green-100 p-3 rounded-lg">
+                                        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor"
+                                            viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                                        </svg>
+                                    </div>
+                                    <div class="flex-1">
+                                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                            <div>
+                                                <p class="font-semibold text-gray-900 text-lg">Bs. {{ pago.monto |
+                                                    number:'1.2-2' }}</p>
+                                                <p class="text-sm text-gray-500">{{ formatDate(pago.fecha_pago) }}</p>
+                                                @if (pago.observacion) {
+                                                <p class="text-sm text-gray-600 mt-1">{{ pago.observacion }}</p>
+                                                }
+                                                @if (pago.metodoPago) {
+                                                <p class="text-xs text-gray-500 mt-1">Método: {{ pago.metodoPago }}</p>
+                                                }
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2 ml-4">
+                                    <button type="button" (click)="editarPago(pago)"
+                                        class="p-2 bg-blue-100 text-blue-600 rounded-lg hover:bg-blue-200 transition-colors"
+                                        title="Editar pago">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                        </svg>
+                                    </button>
+                                    <button type="button" (click)="eliminarPago(pago)"
+                                        class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors"
+                                        title="Eliminar pago">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                    }
+                </div>
+                }
+
+                <div class="mb-8">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2 border-b-2 border-gray-200 pb-2">
+                        <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Cronograma de Pagos
+                    </h2>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        @if (cronograma().length === 0) {
+                        <p class="text-center text-gray-500 py-8">No hay cuotas generadas para este plan de pago.</p>
+                        } @else {
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">N° Cuota</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fecha</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Monto (Bs.)</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @for (cuota of cronograma(); track cuota.id_cuota) {
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ cuota.numero }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ cuota.tipo }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ formatDate(cuota.fecha) }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">Bs. {{ cuota.monto | number:'1.2-2' }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span [class]="'px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ' + getEstadoCuotaClass(cuota.estado)">
+                                                {{ cuota.estado }}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200">
+                    <button type="button" (click)="volverAlListado()"
+                        class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="ventaForm.invalid || enviando()"
+                        class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ enviando() ? 'Actualizando...' : 'Actualizar Venta' }}
+                    </button>
+                </div>
+            </form>
+            }
+        </div>
+    </div>
+</div>

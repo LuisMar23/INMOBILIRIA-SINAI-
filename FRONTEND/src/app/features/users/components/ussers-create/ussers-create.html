@@ -1,0 +1,253 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8"
+>
+  <div class="max-w-4xl mx-auto">
+    <!-- Header -->
+    <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+          </svg>
+          <div>
+            <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Crear Nuevo Usuario</h1>
+            <p class="text-emerald-100 text-xs sm:text-sm mt-1">Registra un nuevo usuario en el sistema</p>
+          </div>
+        </div>
+        <button [routerLink]="['/usuarios']"
+          class="bg-white text-emerald-500 font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-50 transition-all text-sm sm:text-base w-full sm:w-auto">
+          Volver al Listado
+        </button>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+      <form [formGroup]="createForm" (ngSubmit)="onSubmit()">
+
+        <!-- Información básica -->
+        <div class="mb-8">
+          <h2 class="text-lg sm:text-xl font-semibold text-black mb-4 flex items-center gap-2 border-b-2 border-emerald-200 pb-2">
+            <fa-icon [icon]="faUser" class="text-emerald-500"></fa-icon>
+            Información Básica
+          </h2>
+          <div class="bg-white border-2 border-emerald-200 rounded-xl p-4 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <!-- Nombre completo -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre completo <span class="text-red-500">*</span>
+                </label>
+                <input type="text" formControlName="fullName"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                  placeholder="Ej: Juan Pérez" />
+                @if (isFieldValid('fullName')) {
+                  <p class="mt-1 text-xs text-red-600">{{ getFieldError('fullName') }}</p>
+                }
+              </div>
+
+              <!-- Username -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Nombre de usuario <span class="text-red-500">*</span>
+                </label>
+                <input type="text" formControlName="username"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                  placeholder="Nombre de usuario" />
+                @if (isFieldValid('username')) {
+                  <p class="mt-1 text-xs text-red-600">{{ getFieldError('username') }}</p>
+                }
+              </div>
+
+              <!-- Email -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Correo electrónico</label>
+                <input type="email" formControlName="email"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                  placeholder="correo@ejemplo.com" />
+              </div>
+
+              <!-- Teléfono -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Teléfono</label>
+                <input type="text" formControlName="telefono"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                  placeholder="Número de teléfono" />
+              </div>
+
+              <!-- CI -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">C.I.</label>
+                <input type="text" formControlName="ci"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                  placeholder="Cédula de identidad" />
+              </div>
+
+              <!-- Rol -->
+              @if (canAssignRole()) {
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">
+                    Rol del usuario <span class="text-red-500">*</span>
+                  </label>
+                  <select formControlName="role"
+                    class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm">
+                    @for (role of roles; track role) {
+                      <option [value]="role">{{ role }}</option>
+                    }
+                  </select>
+                </div>
+              } @else {
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Rol del usuario</label>
+                  <input type="text" value="USUARIO" readonly
+                    class="w-full px-4 py-2.5 border-2 border-gray-200 rounded-lg bg-gray-100 text-gray-500 text-sm" />
+                  <p class="text-gray-400 text-xs mt-1">Solo administradores pueden asignar roles</p>
+                </div>
+              }
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Urbanizaciones asignadas — solo ASESOR y SECRETARIA -->
+        @if (canAssignRole() && requiresUrbanizacion) {
+          <div class="mb-8">
+            <h2 class="text-lg sm:text-xl font-semibold text-black mb-4 flex items-center gap-2 border-b-2 border-emerald-200 pb-2">
+              <fa-icon [icon]="faBuilding" class="text-emerald-500"></fa-icon>
+              Urbanizaciones Asignadas
+              <span class="text-xs font-normal text-gray-400 ml-2">(opcional)</span>
+            </h2>
+            <div class="bg-white border-2 border-emerald-200 rounded-xl p-4 sm:p-6">
+
+              <!-- Select para agregar -->
+              <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Agregar urbanización
+                </label>
+                <select
+                  (change)="agregarUrbanizacion($event)"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm">
+                  <option value="">-- Selecciona una urbanización --</option>
+                  @for (urb of urbanizacionesDisponibles; track urb.id) {
+                    <option [value]="urb.id">{{ urb.nombre }} — {{ urb.ciudad }}</option>
+                  }
+                </select>
+              </div>
+
+              <!-- Tags de seleccionadas -->
+              @if (urbanizacionesSeleccionadas.length > 0) {
+                <div class="flex flex-wrap gap-2">
+                  @for (urb of urbanizacionesSeleccionadas; track urb.id) {
+                    <span class="inline-flex items-center gap-2 bg-emerald-100 text-emerald-800 text-sm font-medium px-3 py-1.5 rounded-full">
+                      {{ urb.nombre }}
+                      <button type="button" (click)="removerUrbanizacion(urb.id)"
+                        class="text-emerald-600 hover:text-red-500 transition-colors">
+                        <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
+                      </button>
+                    </span>
+                  }
+                </div>
+              } @else {
+                <p class="text-sm text-gray-400 italic">
+                  Sin urbanizaciones asignadas. El usuario verá todos los lotes.
+                </p>
+              }
+
+            </div>
+          </div>
+        }
+
+        <!-- Credenciales -->
+        <div class="mb-8">
+          <h2 class="text-lg sm:text-xl font-semibold text-black mb-4 flex items-center gap-2 border-b-2 border-emerald-200 pb-2">
+            <fa-icon [icon]="faLock" class="text-emerald-500"></fa-icon>
+            Credenciales de Acceso
+          </h2>
+          <div class="bg-white border-2 border-emerald-200 rounded-xl p-4 sm:p-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+              <!-- Contraseña -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Contraseña <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                    class="w-full px-4 py-2.5 pr-12 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                    placeholder="Mínimo 6 caracteres" />
+                  <button type="button" (click)="togglePasswordVisibility()"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-emerald-500 transition-colors">
+                    <fa-icon [icon]="showPassword() ? faEyeSlash : faEye"></fa-icon>
+                  </button>
+                </div>
+                @if (isFieldValid('password')) {
+                  <p class="mt-1 text-xs text-red-600">{{ getFieldError('password') }}</p>
+                }
+              </div>
+
+              <!-- Confirmar contraseña -->
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  Confirmar contraseña <span class="text-red-500">*</span>
+                </label>
+                <div class="relative">
+                  <input [type]="showConfirmPassword() ? 'text' : 'password'" formControlName="confirmPassword"
+                    class="w-full px-4 py-2.5 pr-12 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                    placeholder="Repita la contraseña" />
+                  <button type="button" (click)="toggleConfirmPasswordVisibility()"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-emerald-500 transition-colors">
+                    <fa-icon [icon]="showConfirmPassword() ? faEyeSlash : faEye"></fa-icon>
+                  </button>
+                </div>
+                @if (isFieldValid('confirmPassword')) {
+                  <p class="mt-1 text-xs text-red-600">{{ getFieldError('confirmPassword') }}</p>
+                }
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Información adicional -->
+        <div class="mb-8">
+          <h2 class="text-lg sm:text-xl font-semibold text-black mb-4 flex items-center gap-2 border-b-2 border-emerald-200 pb-2">
+            <fa-icon [icon]="faIdCard" class="text-emerald-500"></fa-icon>
+            Información Adicional (Opcional)
+          </h2>
+          <div class="bg-gray-50 border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+            <div class="grid grid-cols-1 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Dirección</label>
+                <input type="text" formControlName="direccion"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                  placeholder="Dirección completa" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Observaciones</label>
+                <textarea formControlName="observaciones" rows="3"
+                  class="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all text-sm"
+                  placeholder="Notas adicionales sobre el usuario"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="flex flex-col sm:flex-row gap-3">
+          <button type="submit" [disabled]="createForm.invalid || enviando()"
+            class="w-full sm:w-auto px-6 py-3 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-lg font-semibold hover:from-emerald-700 hover:to-emerald-800 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-lg text-sm flex items-center justify-center gap-2">
+            <fa-icon [icon]="faSave"></fa-icon>
+            {{ enviando() ? 'Creando...' : 'Crear Usuario' }}
+          </button>
+          <button type="button" (click)="goBack()"
+            class="w-full sm:w-auto px-6 py-3 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300 transition-all text-sm">
+            Cancelar
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

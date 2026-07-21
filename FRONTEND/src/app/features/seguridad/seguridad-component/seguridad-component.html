@@ -1,0 +1,306 @@
+<div class="min-h-screen bg-gray-50 flex flex-col py-4 px-2 sm:px-4 lg:px-8">
+  <div class="max-w-auto mx-auto w-full">
+
+    <!-- Header — mismo estilo que Gestión de Clientes -->
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-t-2xl shadow-lg p-4 sm:p-6 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="bg-white/20 backdrop-blur-sm rounded-lg p-2">
+          <fa-icon [icon]="faShieldHalved" class="text-white text-2xl"></fa-icon>
+        </div>
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold text-white">Seguridad del Sistema</h1>
+          <p class="text-emerald-100 text-xs sm:text-sm mt-1">Gestiona acceso por rol y urbanizaciones por usuario</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white border-x border-gray-200 px-4 sm:px-6 pt-4 flex gap-1 overflow-x-auto">
+      <button
+        (click)="cambiarTab('permisos')"
+        [class]="tabActivo() === 'permisos'
+          ? 'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 whitespace-nowrap'
+          : 'flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap'">
+        <fa-icon [icon]="faKey"></fa-icon> Permisos por Rol
+      </button>
+      <button
+        (click)="cambiarTab('Asignar Proyectos')"
+        [class]="tabActivo() === 'Asignar Proyectos'
+          ? 'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 whitespace-nowrap'
+          : 'flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap'">
+        <fa-icon [icon]="faBuilding"></fa-icon> Asignar Proyectos
+      </button>
+      <button
+        (click)="cambiarTab('modulos')"
+        [class]="tabActivo() === 'modulos'
+          ? 'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 whitespace-nowrap'
+          : 'flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap'">
+        <fa-icon [icon]="faCubes"></fa-icon> Módulos
+      </button>
+    </div>
+
+    <!-- Contenido -->
+    <div class="bg-white rounded-b-2xl shadow-xl border-x border-b border-gray-200 p-4 sm:p-6">
+
+      <!-- ══ TAB: PERMISOS ══ -->
+      @if (tabActivo() === 'permisos') {
+        <div class="space-y-4">
+
+          <!-- Selector de rol -->
+          <div class="flex flex-wrap gap-2">
+            @for (role of roles; track role) {
+              <button
+                (click)="seleccionarRole(role)"
+                [class]="roleSeleccionado() === role
+                  ? 'px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white shadow-sm'
+                  : 'px-4 py-2 rounded-xl text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors'">
+                {{ role }}
+              </button>
+            }
+          </div>
+
+          <!-- Cabecera tabla -->
+          <div class="flex items-center justify-between">
+            <p class="text-sm text-gray-500">
+              Acceso para: <span class="font-semibold text-emerald-700">{{ roleSeleccionado() }}</span>
+            </p>
+            <button
+              (click)="guardarPermisos()"
+              [disabled]="guardandoPermisos()"
+              class="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm rounded-xl hover:bg-emerald-700 disabled:opacity-50 transition-colors">
+              <fa-icon [icon]="guardandoPermisos() ? faSpinner : faSave"></fa-icon>
+              {{ guardandoPermisos() ? 'Guardando...' : 'Guardar' }}
+            </button>
+          </div>
+
+          @if (cargandoPermisos()) {
+            <div class="text-center py-16">
+              <fa-icon [icon]="faSpinner" class="text-emerald-500 text-3xl animate-spin"></fa-icon>
+              <p class="text-gray-400 text-sm mt-3">Cargando permisos...</p>
+            </div>
+          } @else {
+            <div class="space-y-3">
+              @for (modulo of modulos(); track modulo.id) {
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+
+                  <!-- Fila padre -->
+                  <div class="flex items-center justify-between px-4 py-3 bg-emerald-50">
+                    <div class="flex items-center gap-2">
+                      <fa-icon [icon]="faCubes" class="text-emerald-600 text-sm"></fa-icon>
+                      <span class="font-semibold text-sm text-gray-800">{{ modulo.nombre }}</span>
+                      @if (modulo.hijos?.length) {
+                        <span class="text-xs text-emerald-500 font-normal">
+                          · {{ modulo.hijos.length }} submódulo{{ modulo.hijos.length !== 1 ? 's' : '' }}
+                        </span>
+                      }
+                    </div>
+                    <button
+                      (click)="togglePermiso(modulo.id)"
+                      [class]="getPermiso(modulo.id)
+                        ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-emerald-600 text-white transition-colors'
+                        : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-gray-200 text-gray-500 hover:bg-gray-300 transition-colors'">
+                      <fa-icon [icon]="getPermiso(modulo.id) ? faToggleOn : faToggleOff"></fa-icon>
+                      {{ getPermiso(modulo.id) ? 'Acceso' : 'Sin acceso' }}
+                    </button>
+                  </div>
+
+                  <!-- Hijos -->
+                  @if (modulo.hijos?.length) {
+                    <div class="divide-y divide-gray-100">
+                      @for (hijo of modulo.hijos; track hijo.id) {
+                        <div class="flex items-center justify-between px-4 py-2.5 pl-10 bg-white hover:bg-gray-50 transition-colors">
+                          <div class="flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                            <span class="text-sm text-gray-700">{{ hijo.nombre }}</span>
+                          </div>
+                          <button
+                            (click)="togglePermiso(hijo.id)"
+                            [class]="getPermiso(hijo.id)
+                              ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-teal-600 text-white transition-colors'
+                              : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-gray-200 text-gray-500 hover:bg-gray-300 transition-colors'">
+                            <fa-icon [icon]="getPermiso(hijo.id) ? faToggleOn : faToggleOff"></fa-icon>
+                            {{ getPermiso(hijo.id) ? 'Acceso' : 'Sin acceso' }}
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+
+                </div>
+              }
+
+              @if (modulos().length === 0) {
+                <div class="text-center py-16 text-gray-400">
+                  <fa-icon [icon]="faCubes" class="text-4xl mb-3"></fa-icon>
+                  <p class="text-sm">No hay módulos registrados</p>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ══ TAB: URBANIZACIONES ══ -->
+      @if (tabActivo() === 'Asignar Proyectos') {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+          <!-- Lista usuarios -->
+          <div class="border border-gray-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
+              <fa-icon [icon]="faUsers" class="text-emerald-600"></fa-icon>
+              <h2 class="font-semibold text-sm text-gray-700">Seleccionar Usuario</h2>
+            </div>
+            <div class="divide-y divide-gray-100 max-h-[480px] overflow-y-auto">
+              @for (usuario of usuarios(); track usuario.id) {
+                <button
+                  (click)="seleccionarUsuario(usuario)"
+                  [class]="usuarioSeleccionado()?.id === usuario.id
+                    ? 'w-full text-left px-4 py-3 bg-emerald-50 border-l-4 border-emerald-600 transition-colors'
+                    : 'w-full text-left px-4 py-3 hover:bg-gray-50 border-l-4 border-transparent transition-colors'">
+                  <p class="font-medium text-sm text-gray-800">{{ usuario.fullName }}</p>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-xs px-2 py-0.5 rounded-full font-medium" [class]="getRoleBadge(usuario.role)">
+                      {{ usuario.role }}
+                    </span>
+                    <span class="text-xs text-gray-400">{{ usuario.email || usuario.telefono }}</span>
+                  </div>
+                </button>
+              }
+              @if (usuarios().length === 0) {
+                <p class="px-4 py-8 text-sm text-gray-400 text-center">No hay usuarios</p>
+              }
+            </div>
+          </div>
+
+          <!-- Urbanizaciones del usuario -->
+          <div class="border border-gray-200 rounded-xl overflow-hidden">
+            <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <fa-icon [icon]="faBuilding" class="text-emerald-600"></fa-icon>
+                <h2 class="font-semibold text-sm text-gray-700">Urbanizaciones Asignadas</h2>
+              </div>
+              @if (usuarioSeleccionado()) {
+                <button
+                  (click)="guardarUrbanizaciones()"
+                  [disabled]="guardandoUrb()"
+                  class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors">
+                  <fa-icon [icon]="guardandoUrb() ? faSpinner : faSave"></fa-icon>
+                  {{ guardandoUrb() ? 'Guardando...' : 'Guardar' }}
+                </button>
+              }
+            </div>
+
+            @if (!usuarioSeleccionado()) {
+              <div class="p-10 text-center text-gray-400">
+                <fa-icon [icon]="faUsers" class="text-4xl mb-3 opacity-30"></fa-icon>
+                <p class="text-sm">Selecciona un usuario</p>
+              </div>
+            } @else {
+              <div class="p-4 space-y-4">
+                <p class="text-sm text-gray-500">
+                  Usuario: <span class="font-semibold text-emerald-700">{{ usuarioSeleccionado().fullName }}</span>
+                </p>
+
+                <div class="flex gap-2">
+                  <select
+                    [ngModel]="urbParaAgregar()"
+                    (ngModelChange)="urbParaAgregar.set($event)"
+                    class="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400">
+                    <option [ngValue]="null">— Seleccionar —</option>
+                    @for (urb of urbDisponibles; track urb.id) {
+                      <option [ngValue]="urb.id">{{ urb.nombre }} · {{ urb.ciudad }}</option>
+                    }
+                  </select>
+                  <button
+                    (click)="agregarUrbanizacion()"
+                    [disabled]="!urbParaAgregar()"
+                    class="px-4 py-2 bg-emerald-500 text-white text-sm rounded-xl hover:bg-emerald-600 disabled:opacity-40 transition-colors">
+                    Agregar
+                  </button>
+                </div>
+
+                @if (cargandoUrb()) {
+                  <div class="text-center py-6 text-gray-400">
+                    <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
+                  </div>
+                } @else {
+                  <div class="space-y-2 max-h-64 overflow-y-auto">
+                    @for (urb of urbAsignadas(); track urb.id) {
+                      <div class="flex items-center justify-between px-4 py-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
+                        <div>
+                          <p class="text-sm font-medium text-gray-700">{{ urb.nombre }}</p>
+                          <p class="text-xs text-gray-400">{{ urb.ciudad }}</p>
+                        </div>
+                        <button
+                          (click)="quitarUrbanizacion(urb.id)"
+                          class="text-red-400 hover:text-red-600 transition-colors p-1">
+                          <fa-icon [icon]="faTimes"></fa-icon>
+                        </button>
+                      </div>
+                    }
+                    @if (urbAsignadas().length === 0) {
+                      <p class="text-sm text-gray-400 text-center py-6">Sin urbanizaciones asignadas</p>
+                    }
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+      <!-- ══ TAB: MÓDULOS ══ -->
+      @if (tabActivo() === 'modulos') {
+        <div class="space-y-3">
+          @for (modulo of modulos(); track modulo.id) {
+            <div class="border border-gray-200 rounded-xl overflow-hidden">
+              <button
+                (click)="toggleModulo(modulo.id)"
+                class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-50">
+                    <fa-icon [icon]="faCubes" class="text-emerald-600 text-sm"></fa-icon>
+                  </div>
+                  <div class="text-left">
+                    <p class="font-semibold text-sm text-gray-700">{{ modulo.nombre }}</p>
+                    <p class="text-xs text-gray-400">
+                      <code class="bg-gray-100 px-1 rounded">{{ modulo.clave }}</code>
+                      · {{ modulo.hijos?.length || 0 }} submódulo{{ (modulo.hijos?.length || 0) !== 1 ? 's' : '' }}
+                    </p>
+                  </div>
+                </div>
+                <fa-icon [icon]="isExpanded(modulo.id) ? faChevronUp : faChevronDown" class="text-gray-400 text-sm"></fa-icon>
+              </button>
+
+              @if (isExpanded(modulo.id)) {
+                <div class="border-t border-gray-100 divide-y divide-gray-50">
+                  @for (hijo of modulo.hijos; track hijo.id) {
+                    <div class="px-4 py-2.5 pl-14 flex items-center gap-3 bg-gray-50/50">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
+                      <div>
+                        <p class="text-sm text-gray-700">{{ hijo.nombre }}</p>
+                        <p class="text-xs text-gray-400">
+                          <code class="bg-gray-100 px-1 rounded">{{ hijo.clave }}</code>
+                        </p>
+                      </div>
+                    </div>
+                  }
+                  @if (!modulo.hijos?.length) {
+                    <p class="px-4 py-3 pl-14 text-xs text-gray-400">Sin submódulos</p>
+                  }
+                </div>
+              }
+            </div>
+          }
+          @if (modulos().length === 0) {
+            <div class="text-center py-16 text-gray-400">
+              <fa-icon [icon]="faCubes" class="text-4xl mb-3"></fa-icon>
+              <p class="text-sm">No hay módulos registrados</p>
+            </div>
+          }
+        </div>
+      }
+
+    </div>
+  </div>
+</div>

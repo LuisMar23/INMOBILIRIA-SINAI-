@@ -1,0 +1,254 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-4 px-2 sm:px-4 lg:px-8">
+    <div class="max-w-full mx-auto">
+        <div class="bg-emerald-500 rounded-t-2xl shadow-lg p-4 sm:p-6">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div class="flex items-center gap-3">
+                    <svg class="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl lg:text-3xl font-bold text-white">Editar Reserva</h1>
+                        <p class="text-emerald-100 text-xs sm:text-sm mt-1">Modifica los datos de la reserva seleccionada</p>
+                    </div>
+                </div>
+                <button [routerLink]="['/reservas/lista']" class="flex items-center gap-2 bg-white text-emerald-500 font-semibold px-4 py-2 rounded-lg shadow-md hover:bg-emerald-50 transition-all text-sm sm:text-base w-full sm:w-auto justify-center">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    Volver al Listado
+                </button>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-b-2xl shadow-xl p-4 sm:p-6 lg:p-8">
+            @if (cargando()) {
+            <div class="text-center py-12">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto"></div>
+                <p class="text-gray-600 mt-4">Cargando reserva...</p>
+            </div>
+            }
+
+            @if (error() && !cargando()) {
+            <div class="text-center py-12 text-gray-500">
+                <svg class="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <p class="text-lg">{{ error() }}</p>
+                <button (click)="obtenerReserva()" class="mt-4 px-4 py-2 bg-emerald-500 text-white rounded-lg hover:bg-emerald-600 transition-colors">Reintentar</button>
+            </div>
+            }
+
+            @if (reservaData && !cargando()) {
+            <form [formGroup]="reservaForm" (submit)="handleFormSubmit($event)">
+                <div class="mb-8">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Editar Información de la Reserva
+                    </h2>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Cliente <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <input type="text" [value]="searchCliente()" (input)="searchCliente.set($any($event.target).value)" (focus)="toggleClientesDropdown()" (blur)="onClienteBlur()" placeholder="Buscar cliente por nombre, cédula o email..." class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base pr-10" [class.border-red-500]="reservaForm.get('clienteId')?.invalid && reservaForm.get('clienteId')?.touched" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @if (showClientesDropdown()) {
+                                <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    @for (cliente of filteredClientes(); track cliente.id) {
+                                    <div (click)="selectCliente(cliente)" class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                                        <div class="font-medium text-gray-900">{{ cliente.fullName }}</div>
+                                        <div class="text-sm text-gray-600">{{ cliente.ci }} - {{ cliente.email }}</div>
+                                    </div>
+                                    }
+                                    @if (filteredClientes().length === 0) {
+                                    <div class="px-4 py-3 text-gray-500 text-center">No se encontraron clientes</div>
+                                    }
+                                </div>
+                                }
+                                @if (reservaForm.get('clienteId')?.invalid && reservaForm.get('clienteId')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El cliente es requerido</p>
+                                }
+                            </div>
+
+                            <div class="relative">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Lote <span class="text-red-500">*</span></label>
+                                <div class="relative">
+                                    <input type="text" [value]="searchLote()" (input)="searchLote.set($any($event.target).value)" (focus)="toggleLotesDropdown()" (blur)="onLoteBlur()" placeholder="Buscar lote por número, urbanización..." class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base pr-10" [class.border-red-500]="reservaForm.get('inmuebleId')?.invalid && reservaForm.get('inmuebleId')?.touched" />
+                                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                @if (showLotesDropdown()) {
+                                <div class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                                    @for (lote of filteredLotes(); track lote.id) {
+                                    <div (click)="selectLote(lote)" class="px-4 py-3 hover:bg-emerald-50 cursor-pointer border-b border-gray-100 last:border-b-0">
+                                        <div class="font-medium text-gray-900">{{ lote.numeroLote }}</div>
+                                        <div class="text-sm text-gray-600">{{ lote.urbanizacion?.nombre || 'Independiente' }} - Bs.{{ formatMonto(lote.precioBase) }}</div>
+                                        <div class="text-xs text-gray-500 mt-1">
+                                            <span [class]="getEstadoBadgeClass(lote.estado)" class="text-xs">{{ lote.estado }}</span> - {{ lote.superficieM2 }} m²
+                                            @if (lote.encargado) {
+                                            <span class="ml-2">Encargado: {{ lote.encargado.fullName }}</span>
+                                            }
+                                        </div>
+                                    </div>
+                                    }
+                                    @if (filteredLotes().length === 0) {
+                                    <div class="px-4 py-3 text-gray-500 text-center">No se encontraron lotes</div>
+                                    }
+                                </div>
+                                }
+                                @if (reservaForm.get('inmuebleId')?.invalid && reservaForm.get('inmuebleId')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">El lote es requerido</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Inicio <span class="text-red-500">*</span></label>
+                                <input type="datetime-local" formControlName="fechaInicio" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base" [class.border-red-500]="reservaForm.get('fechaInicio')?.invalid && reservaForm.get('fechaInicio')?.touched" />
+                                @if (reservaForm.get('fechaInicio')?.invalid && reservaForm.get('fechaInicio')?.touched) {
+                                <p class="mt-1 text-xs text-red-600">La fecha de inicio es requerida</p>
+                                }
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Fecha de Vencimiento</label>
+                                <input type="datetime-local" [value]="fechaVencimientoCalculada()" readonly class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-50 text-gray-600 text-sm sm:text-base" />
+                                <p class="mt-1 text-xs text-gray-500">Se calcula automáticamente (24 horas después de la fecha de inicio - Hora La Paz)</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                                <select formControlName="estado" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base">
+                                    <option value="ACTIVA">Activa</option>
+                                    <option value="VENCIDA">Vencida</option>
+                                    <option value="CANCELADA">Cancelada</option>
+                                    <option value="CONVERTIDA_EN_VENTA">Convertida en Venta</option>
+                                </select>
+                            </div>
+
+                            <div class="hidden">
+                                <select formControlName="inmuebleTipo">
+                                    <option value="LOTE">Lote</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <h2 class="text-lg sm:text-xl font-semibold text-gray-900 mb-6 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        Subir Archivos de Reserva
+                    </h2>
+                    <div class="bg-white border-2 border-gray-200 rounded-xl p-4 sm:p-6">
+                        <div class="grid grid-cols-1 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Seleccionar Archivos (Máximo 3)</label>
+                                <div class="flex flex-col sm:flex-row gap-4">
+                                    <div class="flex-1">
+                                        <input type="file" multiple (change)="onFileChange($event)" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200 text-sm sm:text-base" [disabled]="archivosCargando()" />
+                                    </div>
+                                    <button type="button" (click)="subirArchivos()" [disabled]="archivosSeleccionados().length === 0 || archivosCargando()" class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                        </svg>
+                                        {{ archivosCargando() ? 'Subiendo...' : 'Subir Archivos' }}
+                                    </button>
+                                </div>
+                            </div>
+
+                            @if (archivosSeleccionados().length > 0) {
+                            <div class="mt-4">
+                                <h3 class="text-sm font-medium text-gray-700 mb-2">Archivos Seleccionados:</h3>
+                                <div class="space-y-2 max-h-40 overflow-y-auto">
+                                    @for (archivo of archivosSeleccionados(); track $index) {
+                                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span class="text-sm text-gray-700 truncate max-w-xs">{{ archivo.name }}</span>
+                                            <span class="text-xs text-gray-500">({{ formatFileSize(archivo.size) }})</span>
+                                        </div>
+                                        <button type="button" (click)="eliminarArchivo($index)" class="text-red-500 hover:text-red-700 p-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    }
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2">Archivos seleccionados: {{ archivosSeleccionados().length }} / {{ maxArchivos }}</p>
+                            </div>
+                            }
+
+                            <div class="mt-6">
+                                <h3 class="text-sm font-medium text-gray-700 mb-2">Archivos Subidos:</h3>
+                                @if (recibosCargando()) {
+                                <p class="text-sm text-gray-500">Cargando recibos...</p>
+                                } @else {
+                                @if (recibosReserva().length > 0) {
+                                <div class="space-y-2 max-h-60 overflow-y-auto">
+                                    @for (recibo of recibosReserva(); track recibo.id) {
+                                    <div class="flex items-center justify-between bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-5 h-5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                            <span class="text-sm text-gray-700 truncate max-w-xs">{{ recibo.nombreArchivo || recibo.urlArchivo }}</span>
+                                            <span class="text-xs text-gray-500">({{ formatFecha(recibo.creado_en) }})</span>
+                                        </div>
+                                        <div class="flex gap-2">
+                                            <button type="button" (click)="descargarRecibo(recibo)" class="text-emerald-500 hover:text-emerald-700 p-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                                </svg>
+                                            </button>
+                                            <button type="button" (click)="eliminarRecibo(recibo)" class="text-red-500 hover:text-red-700 p-1">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    }
+                                </div>
+                                } @else {
+                                <p class="text-sm text-gray-500">No hay archivos subidos para esta reserva.</p>
+                                }
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 pt-6 border-t border-gray-200">
+                    <button type="button" (click)="volverAlListado()" class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                        </svg>
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="reservaForm.invalid || enviando()" class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 font-semibold w-full sm:w-auto disabled:bg-gray-400 disabled:cursor-not-allowed">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        {{ enviando() ? 'Actualizando...' : 'Actualizar Reserva' }}
+                    </button>
+                </div>
+            </form>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,109 @@
+<div class="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-emerald-50 py-6 px-4 sm:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- Sección 1: Contactos XLS -->
+    <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text-sm font-semibold text-gray-700">
+          Reporte de Contactos/Prospectos/Garantes/Gestores...
+        </span>
+        <span class="text-sm text-gray-400 italic">SINAÍ BIENES RAÍCES</span>
+      </div>
+      <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <button (click)="descargarTodosContactosXls()"
+          [disabled]="cargandoTodosContactosXls()"
+          class="flex items-center justify-center gap-2 border-2 border-teal-400 text-teal-600 hover:bg-teal-50 rounded-lg px-5 py-3 font-medium text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+          @if (cargandoTodosContactosXls()) {
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Generando...
+          } @else {
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Todos los Contactos XLS
+          }
+        </button>
+
+        <button (click)="descargarSoloClientesXls()"
+          [disabled]="cargandoSoloClientesXls()"
+          class="flex items-center justify-center gap-2 border-2 border-teal-400 text-teal-600 hover:bg-teal-50 rounded-lg px-5 py-3 font-medium text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+          @if (cargandoSoloClientesXls()) {
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Generando...
+          } @else {
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Solo Clientes XLS
+          }
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Sección 2: Clientes PDF -->
+    <div class="bg-white rounded-2xl shadow-md overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
+        <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+        <span class="text-sm font-semibold text-gray-700">Reporte de Clientes</span>
+        <span class="text-sm text-gray-400 italic">SINAÍ BIENES RAÍCES</span>
+      </div>
+      <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+        <button (click)="descargarListaPdf()"
+          [disabled]="cargandoListaPdf()"
+          class="flex items-center justify-center gap-2 border-2 border-purple-300 text-purple-600 hover:bg-purple-50 rounded-lg px-5 py-3 font-medium text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+          @if (cargandoListaPdf()) {
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Generando...
+          } @else {
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Lista de clientes PDF
+          }
+        </button>
+
+        <button (click)="descargarPotencialesPdf()"
+          [disabled]="cargandoPotencialesPdf()"
+          class="flex items-center justify-center gap-2 border-2 border-teal-400 text-teal-600 hover:bg-teal-50 rounded-lg px-5 py-3 font-medium text-sm transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed">
+          @if (cargandoPotencialesPdf()) {
+            <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+            </svg>
+            Generando...
+          } @else {
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Clientes potenciales PDF
+          }
+        </button>
+
+      </div>
+    </div>
+
+  </div>
+</div>

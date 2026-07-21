@@ -1,0 +1,294 @@
+<div class="max-w-5xl mx-auto space-y-6 font-sans text-slate-900">
+
+  <!-- ═══════════════════════════════════════════════════════════
+       FILTROS GENERALES
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="rounded-2xl shadow-xl overflow-hidden">
+    <div class="bg-emerald-500 p-4 sm:p-5 flex items-center gap-3">
+      <fa-icon [icon]="faCalendarDays" class="text-white text-lg sm:text-xl"></fa-icon>
+      <div>
+        <h2 class="text-white font-bold text-sm sm:text-base">Filtros Generales</h2>
+        <p class="text-emerald-100 text-xs">Rango de Fechas</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 sm:p-6">
+      <div class="flex flex-wrap items-end gap-8">
+        <label class="flex items-center gap-2.5 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            class="peer sr-only"
+            [ngModel]="filtrarPorFechas()"
+            (ngModelChange)="filtrarPorFechas.set($event)"
+          />
+          <span
+            class="relative inline-flex h-5.5 w-10 items-center rounded-full bg-slate-300 transition-colors peer-checked:bg-emerald-500"
+          >
+            <span
+              class="inline-block h-4 w-4 translate-x-0.5 rounded-full bg-white shadow transition-transform peer-checked:translate-x-5"
+            ></span>
+          </span>
+          <span class="text-sm font-semibold text-slate-700">Filtrar por Fechas</span>
+        </label>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Fecha de Inicio <span class="text-red-500">*</span></label>
+          <input
+            type="date"
+            class="min-w-[180px] rounded-lg border-2 border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"
+            [ngModel]="fechaInicio()"
+            (ngModelChange)="fechaInicio.set($event)"
+            [disabled]="!filtrarPorFechas()"
+          />
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Fecha de Fin <span class="text-red-500">*</span></label>
+          <input
+            type="date"
+            class="min-w-[180px] rounded-lg border-2 border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 disabled:bg-slate-50 disabled:text-slate-400"
+            [ngModel]="fechaFin()"
+            (ngModelChange)="fechaFin.set($event)"
+            [disabled]="!filtrarPorFechas()"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       REPORTE DE INGRESOS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="rounded-2xl shadow-xl overflow-hidden">
+    <div class="bg-emerald-500 p-4 sm:p-5 flex items-center gap-3">
+      <fa-icon [icon]="faMoneyBillTrendUp" class="text-white text-lg sm:text-xl"></fa-icon>
+      <div>
+        <h2 class="text-white font-bold text-sm sm:text-base">Reporte de Ingresos</h2>
+        <p class="text-emerald-100 text-xs">Cobros, cuotas y movimientos de caja</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 sm:p-6">
+      <!-- Forma de Pago -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end mb-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Forma Pago</label>
+          <select
+            class="rounded-lg border-2 border-slate-200 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            [ngModel]="formaPago()"
+            (ngModelChange)="formaPago.set($event)"
+          >
+            <option value="">Todos...</option>
+            <option value="EFECTIVO">Efectivo</option>
+            <option value="TRANSFERENCIA">Transferencia</option>
+            <option value="TARJETA">Tarjeta</option>
+          </select>
+        </div>
+
+        <button
+          class="h-[42px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-semibold shadow-md transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          (click)="onOtrosIngresos()"
+          [disabled]="service.otrosIngresos.cargando()"
+        >
+          <fa-icon [icon]="faFileInvoiceDollar"></fa-icon> Reporte de Ingresos
+        </button>
+
+        <button
+          class="h-[42px] flex items-center justify-center gap-2 rounded-lg bg-emerald-50 text-emerald-700 text-sm font-semibold hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          (click)="onRecibosEmitidos()"
+          [disabled]="service.recibos.cargando()"
+        >
+          <fa-icon [icon]="faReceipt"></fa-icon> Recibos Emitidos
+        </button>
+      </div>
+
+      <!-- Tipo Cuota -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end mb-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Tipo Cuota</label>
+          <select
+            class="rounded-lg border-2 border-slate-200 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            [ngModel]="tipoCuota()"
+            (ngModelChange)="tipoCuota.set($event)"
+          >
+            <option value="">Todos...</option>
+            <option value="INICIAL">Inicial</option>
+            <option value="PRINCIPAL">Principal</option>
+            <option value="ADICIONAL">Adicional</option>
+          </select>
+        </div>
+
+        <button
+          class="sm:col-span-2 h-[42px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-semibold shadow-md transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          (click)="onReporteCobroCuotas()"
+          [disabled]="service.cobroCuotas.cargando()"
+        >
+          <fa-icon [icon]="faFileInvoice"></fa-icon> Reporte Cobro Cuotas
+        </button>
+      </div>
+
+      <!-- Banco / Caja Interna -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end mb-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Banco / Caja Interna <span class="text-red-500">*</span></label>
+          <select
+            class="rounded-lg border-2 border-slate-200 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            [ngModel]="bancoCajaIngreso()"
+            (ngModelChange)="bancoCajaIngreso.set($event)"
+          >
+            <option value="">Todos los bancos/cajas...</option>
+            @for (caja of opciones()?.cajas ?? []; track caja.id) {
+              <option [value]="caja.id">{{ caja.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <button
+          class="sm:col-span-2 h-[42px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-semibold shadow-md transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          (click)="onIngresosPorBanco()"
+          [disabled]="service.ingresosPorBanco.cargando()"
+        >
+          <fa-icon [icon]="faMagnifyingGlass"></fa-icon> Ingresos por Banco
+        </button>
+      </div>
+
+      <!-- Concepto de Ingreso -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Concepto de Ingreso <span class="text-red-500">*</span></label>
+          <select
+            class="rounded-lg border-2 border-slate-200 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            [ngModel]="conceptoIngreso()"
+            (ngModelChange)="conceptoIngreso.set($event)"
+          >
+            <option value="">Seleccione...</option>
+            @for (cat of opciones()?.categoriasIngreso ?? []; track cat.id) {
+              <option [value]="cat.id">{{ cat.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <button
+          class="sm:col-span-2 h-[42px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-semibold shadow-md transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          (click)="onIngresosPorConcepto()"
+          [disabled]="service.otrosIngresosPorConcepto.cargando()"
+        >
+          <fa-icon [icon]="faMagnifyingGlass"></fa-icon> Ingresos por Concepto
+        </button>
+      </div>
+
+      @if (service.otrosIngresos.error() || service.recibos.error() || service.cobroCuotas.error() || service.ingresosPorBanco.error() || service.otrosIngresosPorConcepto.error()) {
+        <p class="mt-4 flex items-center gap-2 text-sm text-red-600">
+          <fa-icon [icon]="faTriangleExclamation"></fa-icon>
+          No se pudo generar uno de los reportes de ingresos. Intenta nuevamente.
+        </p>
+      }
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       REPORTE DE GASTOS
+  ═══════════════════════════════════════════════════════════ -->
+  <div class="rounded-2xl shadow-xl overflow-hidden">
+    <div class="bg-emerald-500 p-4 sm:p-5 flex items-center gap-3">
+      <fa-icon [icon]="faMoneyBillTransfer" class="text-white text-lg sm:text-xl"></fa-icon>
+      <div>
+        <h2 class="text-white font-bold text-sm sm:text-base">Reporte de Gastos</h2>
+        <p class="text-emerald-100 text-xs">Egresos y consolidados por categoría</p>
+      </div>
+    </div>
+
+    <div class="bg-white p-4 sm:p-6">
+      <!-- Tipo de Gasto -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end mb-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Tipo de Gasto</label>
+          <select
+            class="rounded-lg border-2 border-slate-200 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            [ngModel]="tipoGasto()"
+            (ngModelChange)="tipoGasto.set($event)"
+          >
+            <option value="">Todos...</option>
+            @for (cat of opciones()?.categoriasGasto ?? []; track cat.id) {
+              <option [value]="cat.id">{{ cat.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <button
+          class="h-[42px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-semibold shadow-md transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          (click)="onReporteGastos()"
+          [disabled]="service.gastos.cargando()"
+        >
+          <fa-icon [icon]="faFileLines"></fa-icon> Reporte de Gastos
+        </button>
+
+        <button
+          class="h-[42px] flex items-center justify-center gap-2 rounded-lg bg-emerald-50 text-emerald-700 text-sm font-semibold hover:bg-emerald-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          (click)="onConsolidadoGastos()"
+          [disabled]="service.consolidadoGastos.cargando()"
+        >
+          <fa-icon [icon]="faChartPie"></fa-icon> Consolidado de Gastos
+        </button>
+      </div>
+
+      <!-- Banco / Caja Origen -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end mb-4">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Banco / Caja Origen <span class="text-red-500">*</span></label>
+          <select
+            class="rounded-lg border-2 border-slate-200 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            [ngModel]="bancoCajaGasto()"
+            (ngModelChange)="bancoCajaGasto.set($event)"
+          >
+            <option value="">Todos los bancos/cajas...</option>
+            @for (caja of opciones()?.cajas ?? []; track caja.id) {
+              <option [value]="caja.id">{{ caja.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <button
+          class="sm:col-span-2 h-[42px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-semibold shadow-md transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          (click)="onGastosPorBanco()"
+          [disabled]="service.gastosPorBanco.cargando()"
+        >
+          <fa-icon [icon]="faMagnifyingGlass"></fa-icon> Gastos por Banco
+        </button>
+      </div>
+
+      <!-- Concepto de Gasto -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs text-slate-500">Concepto de Gasto <span class="text-red-500">*</span></label>
+          <select
+            class="rounded-lg border-2 border-slate-200 px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+            [ngModel]="conceptoGasto()"
+            (ngModelChange)="conceptoGasto.set($event)"
+          >
+            <option value="">Seleccione...</option>
+            @for (cat of opciones()?.categoriasGasto ?? []; track cat.id) {
+              <option [value]="cat.id">{{ cat.nombre }}</option>
+            }
+          </select>
+        </div>
+
+        <button
+          class="sm:col-span-2 h-[42px] flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white text-sm font-semibold shadow-md transition-all duration-200 transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          (click)="onGastosPorConcepto()"
+          [disabled]="service.gastosPorConcepto.cargando()"
+        >
+          <fa-icon [icon]="faMagnifyingGlass"></fa-icon> Gastos por Concepto
+        </button>
+      </div>
+
+      @if (service.gastos.error() || service.consolidadoGastos.error() || service.gastosPorBanco.error() || service.gastosPorConcepto.error()) {
+        <p class="mt-4 flex items-center gap-2 text-sm text-red-600">
+          <fa-icon [icon]="faTriangleExclamation"></fa-icon>
+          No se pudo generar uno de los reportes de gastos. Intenta nuevamente.
+        </p>
+      }
+    </div>
+  </div>
+
+</div>
