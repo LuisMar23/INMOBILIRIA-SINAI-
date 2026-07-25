@@ -4,9 +4,9 @@ export const environment = {
   // fileServer: 'http://157.245.165.123:3301',
 
   production: false,
-  // apiUrl: 'http://localhost:3301/apisinai',
-  // fileServer: 'http://localhost:3301',
+  apiUrl: 'http://localhost:3301/apisinai',
+  fileServer: 'http://localhost:3301',
 
-  apiUrl: 'https://inmobiliriasinai.com/apisinai',
-  fileServer: 'https://inmobiliriasinai.com',
+  //apiUrl: 'https://inmobiliriasinai.com/apisinai',
+  //fileServer: 'https://inmobiliriasinai.com',
 };

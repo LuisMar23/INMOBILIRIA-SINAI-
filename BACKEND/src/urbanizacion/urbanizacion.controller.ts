@@ -49,6 +49,7 @@ export class UrbanizacionController {
   findOne(@Param('id') id: string) {
     return this.urbanizacionService.findOne(+id);
   }
+
   @Get('uuid/:uuid')
   findOneUUID(@Param('uuid') id: string) {
     console.log(id);
@@ -66,5 +67,21 @@ export class UrbanizacionController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.urbanizacionService.remove(+id);
+  }
+}
+
+// NUEVO CONTROLADOR PÚBLICO (sin autenticación)
+@Controller('public/urbanizaciones')
+export class PublicUrbanizacionController {
+  constructor(private readonly urbanizacionService: UrbanizacionService) {}
+
+  @Get()
+  findAllPublic() {
+    return this.urbanizacionService.findAllPublic();
+  }
+
+  @Get('uuid/:uuid')
+  findOneUUIDPublic(@Param('uuid') uuid: string) {
+    return this.urbanizacionService.findOneUUIDPublic(uuid);
   }
 }

@@ -140,3 +140,24 @@ export class LoteController {
     return this.loteService.asignarEncargado(+id, body.encargadoId, req.user.id);
   }
 }
+
+// NUEVO CONTROLADOR PÚBLICO (sin autenticación)
+@Controller('public/lotes')
+export class PublicLoteController {
+  constructor(private readonly loteService: LoteService) {}
+
+  @Get('todos')
+  async findAllPublicos() {
+    return this.loteService.findAllPublicos();
+  }
+
+  @Get('uuid/:id')
+  async findOneUUIDPublic(@Param('id') id: string) {
+    return this.loteService.findOneUUID(id);
+  }
+
+  @Get('con-promocion')
+  async obtenerLotesConPromocionPublic() {
+    return this.loteService.obtenerLotesConPromocion();
+  }
+}

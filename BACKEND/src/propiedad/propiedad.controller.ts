@@ -1,4 +1,3 @@
-// src/propiedad/propiedad.controller.ts
 import {
   Controller,
   Get,
@@ -108,5 +107,31 @@ export class PropiedadController {
       body.encargadoId,
       req.user.id,
     );
+  }
+}
+
+// NUEVO CONTROLADOR PÚBLICO (sin autenticación)
+@Controller('public/propiedades')
+export class PublicPropiedadController {
+  constructor(private readonly propiedadService: PropiedadService) {}
+
+  @Get('todas')
+  async findAllPublicas() {
+    return this.propiedadService.findAllPublicas();
+  }
+
+  @Get('uuid/:uuid')
+  async findOneUUIDPublic(@Param('uuid') uuid: string) {
+    return this.propiedadService.findOneUUID(uuid);
+  }
+
+  @Get('tipo/:tipo')
+  async getPropiedadesPorTipoPublic(@Param('tipo') tipo: TipoPropiedad) {
+    return this.propiedadService.getPropiedadesPorTipo(tipo);
+  }
+
+  @Get('estado-propiedad/:estado')
+  async getPropiedadesPorEstadoPublic(@Param('estado') estado: EstadoPropiedad) {
+    return this.propiedadService.getPropiedadesPorEstado(estado);
   }
 }

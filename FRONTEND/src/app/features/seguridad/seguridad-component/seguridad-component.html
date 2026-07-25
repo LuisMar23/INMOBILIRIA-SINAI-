@@ -1,106 +1,112 @@
-<div class="min-h-screen bg-gray-50 flex flex-col py-4 px-2 sm:px-4 lg:px-8">
-  <div class="max-w-auto mx-auto w-full">
+<div class="min-h-screen bg-gray-50 flex flex-col py-2 px-1 sm:px-4 md:px-6 lg:px-8">
+  <div class="max-w-7xl mx-auto w-full">
 
-    <!-- Header — mismo estilo que Gestión de Clientes -->
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-t-2xl shadow-lg p-4 sm:p-6 flex items-center justify-between">
-      <div class="flex items-center gap-3">
-        <div class="bg-white/20 backdrop-blur-sm rounded-lg p-2">
-          <fa-icon [icon]="faShieldHalved" class="text-white text-2xl"></fa-icon>
+    <!-- Header -->
+    <div class="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-t-2xl shadow-lg p-3 sm:p-4 md:p-6 flex items-center justify-between">
+      <div class="flex items-center gap-2 sm:gap-3 md:gap-4 min-w-0">
+        <div class="bg-white/20 backdrop-blur-sm rounded-lg p-1.5 sm:p-2 flex-shrink-0">
+          <fa-icon [icon]="faShieldHalved" class="text-white text-xl sm:text-2xl md:text-3xl"></fa-icon>
         </div>
-        <div>
-          <h1 class="text-xl sm:text-2xl font-bold text-white">Seguridad del Sistema</h1>
-          <p class="text-emerald-100 text-xs sm:text-sm mt-1">Gestiona acceso por rol y urbanizaciones por usuario</p>
+        <div class="min-w-0">
+          <h1 class="text-base sm:text-xl md:text-2xl font-bold text-white truncate sm:truncate md:truncate-none">Seguridad del Sistema</h1>
+          <p class="text-emerald-100 text-[10px] sm:text-xs md:text-sm mt-0.5 truncate sm:truncate md:truncate-none">Gestiona accesos y proyectos</p>
         </div>
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="bg-white border-x border-gray-200 px-4 sm:px-6 pt-4 flex gap-1 overflow-x-auto">
+    <!-- Tabs – en móvil se envuelven, en tablet/desktop una línea -->
+    <div class="bg-white border-x border-gray-200 px-2 sm:px-4 md:px-6 pt-2 sm:pt-3 md:pt-4 flex flex-wrap gap-1 sm:gap-2">
       <button
         (click)="cambiarTab('permisos')"
         [class]="tabActivo() === 'permisos'
-          ? 'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 whitespace-nowrap'
-          : 'flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap'">
-        <fa-icon [icon]="faKey"></fa-icon> Permisos por Rol
+          ? 'flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600'
+          : 'flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-500 hover:text-gray-700'">
+        <fa-icon [icon]="faKey" class="text-xs sm:text-sm"></fa-icon>
+        <span class="hidden xs:inline">Permisos por Rol</span>
+        <span class="xs:hidden">Roles</span>
       </button>
       <button
         (click)="cambiarTab('Asignar Proyectos')"
         [class]="tabActivo() === 'Asignar Proyectos'
-          ? 'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 whitespace-nowrap'
-          : 'flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap'">
-        <fa-icon [icon]="faBuilding"></fa-icon> Asignar Proyectos
+          ? 'flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600'
+          : 'flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-500 hover:text-gray-700'">
+        <fa-icon [icon]="faBuilding" class="text-xs sm:text-sm"></fa-icon>
+        <span class="hidden xs:inline">Asignar Proyectos</span>
+        <span class="xs:hidden">Proyectos</span>
       </button>
       <button
         (click)="cambiarTab('modulos')"
         [class]="tabActivo() === 'modulos'
-          ? 'flex items-center gap-2 px-4 py-2.5 text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600 whitespace-nowrap'
-          : 'flex items-center gap-2 px-4 py-2.5 text-sm text-gray-500 hover:text-gray-700 whitespace-nowrap'">
-        <fa-icon [icon]="faCubes"></fa-icon> Módulos
+          ? 'flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-semibold text-emerald-700 border-b-2 border-emerald-600'
+          : 'flex items-center gap-1.5 px-2.5 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm text-gray-500 hover:text-gray-700'">
+        <fa-icon [icon]="faCubes" class="text-xs sm:text-sm"></fa-icon>
+        <span class="hidden xs:inline">Módulos</span>
+        <span class="xs:hidden">Mód.</span>
       </button>
     </div>
 
     <!-- Contenido -->
-    <div class="bg-white rounded-b-2xl shadow-xl border-x border-b border-gray-200 p-4 sm:p-6">
+    <div class="bg-white rounded-b-2xl shadow-xl border-x border-b border-gray-200 p-2 sm:p-4 md:p-6">
 
       <!-- ══ TAB: PERMISOS ══ -->
       @if (tabActivo() === 'permisos') {
-        <div class="space-y-4">
+        <div class="space-y-3 md:space-y-4">
 
           <!-- Selector de rol -->
-          <div class="flex flex-wrap gap-2">
+          <div class="flex flex-wrap gap-1 sm:gap-2">
             @for (role of roles; track role) {
               <button
                 (click)="seleccionarRole(role)"
                 [class]="roleSeleccionado() === role
-                  ? 'px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-600 text-white shadow-sm'
-                  : 'px-4 py-2 rounded-xl text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors'">
+                  ? 'px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-lg text-[10px] sm:text-xs md:text-sm font-semibold bg-emerald-600 text-white shadow-sm'
+                  : 'px-2 py-1 sm:px-3 sm:py-1.5 md:px-4 md:py-2 rounded-lg text-[10px] sm:text-xs md:text-sm font-medium bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors'">
                 {{ role }}
               </button>
             }
           </div>
 
-          <!-- Cabecera tabla -->
-          <div class="flex items-center justify-between">
-            <p class="text-sm text-gray-500">
-              Acceso para: <span class="font-semibold text-emerald-700">{{ roleSeleccionado() }}</span>
+          <!-- Cabecera + guardar -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+            <p class="text-xs sm:text-sm text-gray-500">
+              Acceso: <span class="font-semibold text-emerald-700">{{ roleSeleccionado() }}</span>
             </p>
             <button
               (click)="guardarPermisos()"
               [disabled]="guardandoPermisos()"
-              class="flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white text-sm rounded-xl hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-              <fa-icon [icon]="guardandoPermisos() ? faSpinner : faSave"></fa-icon>
+              class="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-600 text-white text-xs sm:text-sm rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors w-full sm:w-auto justify-center">
+              <fa-icon [icon]="guardandoPermisos() ? faSpinner : faSave" class="text-xs sm:text-sm"></fa-icon>
               {{ guardandoPermisos() ? 'Guardando...' : 'Guardar' }}
             </button>
           </div>
 
           @if (cargandoPermisos()) {
-            <div class="text-center py-16">
-              <fa-icon [icon]="faSpinner" class="text-emerald-500 text-3xl animate-spin"></fa-icon>
-              <p class="text-gray-400 text-sm mt-3">Cargando permisos...</p>
+            <div class="text-center py-10">
+              <fa-icon [icon]="faSpinner" class="text-emerald-500 text-2xl animate-spin"></fa-icon>
+              <p class="text-gray-400 text-xs mt-2">Cargando...</p>
             </div>
           } @else {
-            <div class="space-y-3">
+            <div class="space-y-2 md:space-y-3">
               @for (modulo of modulos(); track modulo.id) {
-                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                <div class="border border-gray-200 rounded-lg overflow-hidden">
 
                   <!-- Fila padre -->
-                  <div class="flex items-center justify-between px-4 py-3 bg-emerald-50">
-                    <div class="flex items-center gap-2">
-                      <fa-icon [icon]="faCubes" class="text-emerald-600 text-sm"></fa-icon>
-                      <span class="font-semibold text-sm text-gray-800">{{ modulo.nombre }}</span>
+                  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 py-2 sm:px-4 sm:py-3 bg-emerald-50 gap-1.5 sm:gap-2">
+                    <div class="flex items-center gap-1.5 min-w-0">
+                      <fa-icon [icon]="faCubes" class="text-emerald-600 text-xs sm:text-sm flex-shrink-0"></fa-icon>
+                      <span class="font-semibold text-xs sm:text-sm text-gray-800 truncate">{{ modulo.nombre }}</span>
                       @if (modulo.hijos?.length) {
-                        <span class="text-xs text-emerald-500 font-normal">
-                          · {{ modulo.hijos.length }} submódulo{{ modulo.hijos.length !== 1 ? 's' : '' }}
+                        <span class="text-[10px] sm:text-xs text-emerald-500 font-normal flex-shrink-0">
+                          · {{ modulo.hijos.length }}
                         </span>
                       }
                     </div>
                     <button
                       (click)="togglePermiso(modulo.id)"
                       [class]="getPermiso(modulo.id)
-                        ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-emerald-600 text-white transition-colors'
-                        : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-gray-200 text-gray-500 hover:bg-gray-300 transition-colors'">
-                      <fa-icon [icon]="getPermiso(modulo.id) ? faToggleOn : faToggleOff"></fa-icon>
-                      {{ getPermiso(modulo.id) ? 'Acceso' : 'Sin acceso' }}
+                        ? 'flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium bg-emerald-600 text-white transition-colors flex-shrink-0'
+                        : 'flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium bg-gray-200 text-gray-500 hover:bg-gray-300 transition-colors flex-shrink-0'">
+                      <fa-icon [icon]="getPermiso(modulo.id) ? faToggleOn : faToggleOff" class="text-xs"></fa-icon>
+                      <span class="hidden xs:inline">{{ getPermiso(modulo.id) ? 'Acceso' : 'Sin acceso' }}</span>
                     </button>
                   </div>
 
@@ -108,18 +114,18 @@
                   @if (modulo.hijos?.length) {
                     <div class="divide-y divide-gray-100">
                       @for (hijo of modulo.hijos; track hijo.id) {
-                        <div class="flex items-center justify-between px-4 py-2.5 pl-10 bg-white hover:bg-gray-50 transition-colors">
-                          <div class="flex items-center gap-2">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
-                            <span class="text-sm text-gray-700">{{ hijo.nombre }}</span>
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 py-2 pl-6 sm:px-4 sm:py-2.5 sm:pl-10 bg-white hover:bg-gray-50 transition-colors gap-1.5 sm:gap-2">
+                          <div class="flex items-center gap-1.5 min-w-0">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block flex-shrink-0"></span>
+                            <span class="text-xs sm:text-sm text-gray-700 truncate">{{ hijo.nombre }}</span>
                           </div>
                           <button
                             (click)="togglePermiso(hijo.id)"
                             [class]="getPermiso(hijo.id)
-                              ? 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-teal-600 text-white transition-colors'
-                              : 'flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-gray-200 text-gray-500 hover:bg-gray-300 transition-colors'">
-                            <fa-icon [icon]="getPermiso(hijo.id) ? faToggleOn : faToggleOff"></fa-icon>
-                            {{ getPermiso(hijo.id) ? 'Acceso' : 'Sin acceso' }}
+                              ? 'flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium bg-teal-600 text-white transition-colors flex-shrink-0'
+                              : 'flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-lg text-[10px] sm:text-xs font-medium bg-gray-200 text-gray-500 hover:bg-gray-300 transition-colors flex-shrink-0'">
+                            <fa-icon [icon]="getPermiso(hijo.id) ? faToggleOn : faToggleOff" class="text-xs"></fa-icon>
+                            <span class="hidden xs:inline">{{ getPermiso(hijo.id) ? 'Acceso' : 'Sin acceso' }}</span>
                           </button>
                         </div>
                       }
@@ -130,9 +136,9 @@
               }
 
               @if (modulos().length === 0) {
-                <div class="text-center py-16 text-gray-400">
-                  <fa-icon [icon]="faCubes" class="text-4xl mb-3"></fa-icon>
-                  <p class="text-sm">No hay módulos registrados</p>
+                <div class="text-center py-12 text-gray-400">
+                  <fa-icon [icon]="faCubes" class="text-3xl mb-2"></fa-icon>
+                  <p class="text-xs">No hay módulos</p>
                 </div>
               }
             </div>
@@ -142,70 +148,71 @@
 
       <!-- ══ TAB: URBANIZACIONES ══ -->
       @if (tabActivo() === 'Asignar Proyectos') {
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <!-- En tablet (md) ya son 2 columnas, igual que en escritorio -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
 
           <!-- Lista usuarios -->
-          <div class="border border-gray-200 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
-              <fa-icon [icon]="faUsers" class="text-emerald-600"></fa-icon>
-              <h2 class="font-semibold text-sm text-gray-700">Seleccionar Usuario</h2>
+          <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <div class="px-3 py-2 sm:px-4 sm:py-3 bg-emerald-50 border-b border-emerald-100 flex items-center gap-2">
+              <fa-icon [icon]="faUsers" class="text-emerald-600 text-sm"></fa-icon>
+              <h2 class="font-semibold text-xs sm:text-sm text-gray-700">Usuarios</h2>
             </div>
-            <div class="divide-y divide-gray-100 max-h-[480px] overflow-y-auto">
+            <div class="divide-y divide-gray-100 max-h-[400px] overflow-y-auto">
               @for (usuario of usuarios(); track usuario.id) {
                 <button
                   (click)="seleccionarUsuario(usuario)"
                   [class]="usuarioSeleccionado()?.id === usuario.id
-                    ? 'w-full text-left px-4 py-3 bg-emerald-50 border-l-4 border-emerald-600 transition-colors'
-                    : 'w-full text-left px-4 py-3 hover:bg-gray-50 border-l-4 border-transparent transition-colors'">
-                  <p class="font-medium text-sm text-gray-800">{{ usuario.fullName }}</p>
-                  <div class="flex items-center gap-2 mt-0.5">
-                    <span class="text-xs px-2 py-0.5 rounded-full font-medium" [class]="getRoleBadge(usuario.role)">
+                    ? 'w-full text-left px-3 py-2 sm:px-4 sm:py-3 bg-emerald-50 border-l-4 border-emerald-600 transition-colors'
+                    : 'w-full text-left px-3 py-2 sm:px-4 sm:py-3 hover:bg-gray-50 border-l-4 border-transparent transition-colors'">
+                  <p class="font-medium text-xs sm:text-sm text-gray-800 truncate">{{ usuario.fullName }}</p>
+                  <div class="flex flex-wrap items-center gap-1 mt-0.5">
+                    <span class="text-[10px] px-1.5 py-0.5 rounded-full font-medium" [class]="getRoleBadge(usuario.role)">
                       {{ usuario.role }}
                     </span>
-                    <span class="text-xs text-gray-400">{{ usuario.email || usuario.telefono }}</span>
+                    <span class="text-[10px] text-gray-400 truncate">{{ usuario.email || usuario.telefono }}</span>
                   </div>
                 </button>
               }
               @if (usuarios().length === 0) {
-                <p class="px-4 py-8 text-sm text-gray-400 text-center">No hay usuarios</p>
+                <p class="px-3 py-6 text-xs text-gray-400 text-center">No hay usuarios</p>
               }
             </div>
           </div>
 
           <!-- Urbanizaciones del usuario -->
-          <div class="border border-gray-200 rounded-xl overflow-hidden">
-            <div class="px-4 py-3 bg-emerald-50 border-b border-emerald-100 flex items-center justify-between">
+          <div class="border border-gray-200 rounded-lg overflow-hidden">
+            <div class="px-3 py-2 sm:px-4 sm:py-3 bg-emerald-50 border-b border-emerald-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
               <div class="flex items-center gap-2">
-                <fa-icon [icon]="faBuilding" class="text-emerald-600"></fa-icon>
-                <h2 class="font-semibold text-sm text-gray-700">Urbanizaciones Asignadas</h2>
+                <fa-icon [icon]="faBuilding" class="text-emerald-600 text-sm"></fa-icon>
+                <h2 class="font-semibold text-xs sm:text-sm text-gray-700">Asignadas</h2>
               </div>
               @if (usuarioSeleccionado()) {
                 <button
                   (click)="guardarUrbanizaciones()"
                   [disabled]="guardandoUrb()"
-                  class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 text-white text-xs rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors">
-                  <fa-icon [icon]="guardandoUrb() ? faSpinner : faSave"></fa-icon>
+                  class="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-emerald-600 text-white text-[10px] sm:text-xs rounded-lg hover:bg-emerald-700 disabled:opacity-50 transition-colors w-full sm:w-auto justify-center">
+                  <fa-icon [icon]="guardandoUrb() ? faSpinner : faSave" class="text-xs"></fa-icon>
                   {{ guardandoUrb() ? 'Guardando...' : 'Guardar' }}
                 </button>
               }
             </div>
 
             @if (!usuarioSeleccionado()) {
-              <div class="p-10 text-center text-gray-400">
-                <fa-icon [icon]="faUsers" class="text-4xl mb-3 opacity-30"></fa-icon>
-                <p class="text-sm">Selecciona un usuario</p>
+              <div class="p-6 text-center text-gray-400">
+                <fa-icon [icon]="faUsers" class="text-3xl mb-2 opacity-30"></fa-icon>
+                <p class="text-xs">Selecciona un usuario</p>
               </div>
             } @else {
-              <div class="p-4 space-y-4">
-                <p class="text-sm text-gray-500">
+              <div class="p-3 sm:p-4 space-y-3">
+                <p class="text-xs sm:text-sm text-gray-500 truncate">
                   Usuario: <span class="font-semibold text-emerald-700">{{ usuarioSeleccionado().fullName }}</span>
                 </p>
 
-                <div class="flex gap-2">
+                <div class="flex flex-col sm:flex-row gap-2">
                   <select
                     [ngModel]="urbParaAgregar()"
                     (ngModelChange)="urbParaAgregar.set($event)"
-                    class="flex-1 text-sm border border-gray-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400">
+                    class="flex-1 text-xs sm:text-sm border border-gray-200 rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 focus:outline-none focus:ring-2 focus:ring-emerald-200 focus:border-emerald-400 w-full">
                     <option [ngValue]="null">— Seleccionar —</option>
                     @for (urb of urbDisponibles; track urb.id) {
                       <option [ngValue]="urb.id">{{ urb.nombre }} · {{ urb.ciudad }}</option>
@@ -214,32 +221,32 @@
                   <button
                     (click)="agregarUrbanizacion()"
                     [disabled]="!urbParaAgregar()"
-                    class="px-4 py-2 bg-emerald-500 text-white text-sm rounded-xl hover:bg-emerald-600 disabled:opacity-40 transition-colors">
+                    class="px-3 py-1.5 sm:px-4 sm:py-2 bg-emerald-500 text-white text-xs sm:text-sm rounded-lg hover:bg-emerald-600 disabled:opacity-40 transition-colors w-full sm:w-auto">
                     Agregar
                   </button>
                 </div>
 
                 @if (cargandoUrb()) {
-                  <div class="text-center py-6 text-gray-400">
+                  <div class="text-center py-4 text-gray-400">
                     <fa-icon [icon]="faSpinner" class="animate-spin"></fa-icon>
                   </div>
                 } @else {
-                  <div class="space-y-2 max-h-64 overflow-y-auto">
+                  <div class="space-y-1.5 max-h-48 overflow-y-auto">
                     @for (urb of urbAsignadas(); track urb.id) {
-                      <div class="flex items-center justify-between px-4 py-2.5 bg-emerald-50 rounded-xl border border-emerald-100">
-                        <div>
-                          <p class="text-sm font-medium text-gray-700">{{ urb.nombre }}</p>
-                          <p class="text-xs text-gray-400">{{ urb.ciudad }}</p>
+                      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between px-3 py-2 bg-emerald-50 rounded-lg border border-emerald-100 gap-1.5">
+                        <div class="min-w-0">
+                          <p class="text-xs sm:text-sm font-medium text-gray-700 truncate">{{ urb.nombre }}</p>
+                          <p class="text-[10px] text-gray-400">{{ urb.ciudad }}</p>
                         </div>
                         <button
                           (click)="quitarUrbanizacion(urb.id)"
-                          class="text-red-400 hover:text-red-600 transition-colors p-1">
-                          <fa-icon [icon]="faTimes"></fa-icon>
+                          class="text-red-400 hover:text-red-600 transition-colors p-1 flex-shrink-0">
+                          <fa-icon [icon]="faTimes" class="text-xs"></fa-icon>
                         </button>
                       </div>
                     }
                     @if (urbAsignadas().length === 0) {
-                      <p class="text-sm text-gray-400 text-center py-6">Sin urbanizaciones asignadas</p>
+                      <p class="text-xs text-gray-400 text-center py-4">Sin urbanizaciones</p>
                     }
                   </div>
                 }
@@ -251,51 +258,51 @@
 
       <!-- ══ TAB: MÓDULOS ══ -->
       @if (tabActivo() === 'modulos') {
-        <div class="space-y-3">
+        <div class="space-y-2 md:space-y-3">
           @for (modulo of modulos(); track modulo.id) {
-            <div class="border border-gray-200 rounded-xl overflow-hidden">
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
               <button
                 (click)="toggleModulo(modulo.id)"
-                class="w-full flex items-center justify-between px-4 py-3 hover:bg-gray-50 transition-colors">
-                <div class="flex items-center gap-3">
-                  <div class="w-8 h-8 flex items-center justify-center rounded-lg bg-emerald-50">
-                    <fa-icon [icon]="faCubes" class="text-emerald-600 text-sm"></fa-icon>
+                class="w-full flex items-center justify-between px-3 py-2 sm:px-4 sm:py-3 hover:bg-gray-50 transition-colors gap-2">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="w-6 h-6 sm:w-8 sm:h-8 flex items-center justify-center rounded-lg bg-emerald-50 flex-shrink-0">
+                    <fa-icon [icon]="faCubes" class="text-emerald-600 text-xs sm:text-sm"></fa-icon>
                   </div>
-                  <div class="text-left">
-                    <p class="font-semibold text-sm text-gray-700">{{ modulo.nombre }}</p>
-                    <p class="text-xs text-gray-400">
-                      <code class="bg-gray-100 px-1 rounded">{{ modulo.clave }}</code>
-                      · {{ modulo.hijos?.length || 0 }} submódulo{{ (modulo.hijos?.length || 0) !== 1 ? 's' : '' }}
+                  <div class="text-left min-w-0">
+                    <p class="font-semibold text-xs sm:text-sm text-gray-700 truncate">{{ modulo.nombre }}</p>
+                    <p class="text-[10px] sm:text-xs text-gray-400 truncate">
+                      <code class="bg-gray-100 px-1 rounded break-all">{{ modulo.clave }}</code>
+                      · {{ modulo.hijos?.length || 0 }} sub
                     </p>
                   </div>
                 </div>
-                <fa-icon [icon]="isExpanded(modulo.id) ? faChevronUp : faChevronDown" class="text-gray-400 text-sm"></fa-icon>
+                <fa-icon [icon]="isExpanded(modulo.id) ? faChevronUp : faChevronDown" class="text-gray-400 text-xs sm:text-sm flex-shrink-0"></fa-icon>
               </button>
 
               @if (isExpanded(modulo.id)) {
                 <div class="border-t border-gray-100 divide-y divide-gray-50">
                   @for (hijo of modulo.hijos; track hijo.id) {
-                    <div class="px-4 py-2.5 pl-14 flex items-center gap-3 bg-gray-50/50">
-                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block"></span>
-                      <div>
-                        <p class="text-sm text-gray-700">{{ hijo.nombre }}</p>
-                        <p class="text-xs text-gray-400">
-                          <code class="bg-gray-100 px-1 rounded">{{ hijo.clave }}</code>
+                    <div class="px-3 py-2 pl-8 sm:px-4 sm:py-2.5 sm:pl-14 flex items-center gap-2 bg-gray-50/50">
+                      <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block flex-shrink-0"></span>
+                      <div class="min-w-0">
+                        <p class="text-xs sm:text-sm text-gray-700 truncate">{{ hijo.nombre }}</p>
+                        <p class="text-[10px] text-gray-400">
+                          <code class="bg-gray-100 px-1 rounded break-all">{{ hijo.clave }}</code>
                         </p>
                       </div>
                     </div>
                   }
                   @if (!modulo.hijos?.length) {
-                    <p class="px-4 py-3 pl-14 text-xs text-gray-400">Sin submódulos</p>
+                    <p class="px-3 py-2 pl-8 sm:px-4 sm:py-3 sm:pl-14 text-xs text-gray-400">Sin submódulos</p>
                   }
                 </div>
               }
             </div>
           }
           @if (modulos().length === 0) {
-            <div class="text-center py-16 text-gray-400">
-              <fa-icon [icon]="faCubes" class="text-4xl mb-3"></fa-icon>
-              <p class="text-sm">No hay módulos registrados</p>
+            <div class="text-center py-12 text-gray-400">
+              <fa-icon [icon]="faCubes" class="text-3xl mb-2"></fa-icon>
+              <p class="text-xs">No hay módulos registrados</p>
             </div>
           }
         </div>

@@ -1,8 +1,5 @@
 <div class="min-h-screen bg-gray-100 flex flex-col">
   <!-- Top Bar -->
-  
-  
-
   <div class="bg-white border-b border-gray-200 px-6 py-3 flex items-center justify-between shadow-sm">
     <img src="assets/logoSinai.jpg" alt="Logo" class="h-12 object-contain" />
     <div class="text-center">
@@ -52,7 +49,7 @@
   </div>
 
   <!-- Contenido -->
- <div class="flex-1 p-6">
+  <div class="flex-1 p-6">
     <div class="max-w-6xl mx-auto">
 
       @if (cargando()) {
@@ -79,7 +76,7 @@
           <p class="text-sm mt-1 text-gray-400">Crea la primera para comenzar</p>
           @if (isAdmin) {
             <button
-              (click)="crearUrbanizacion()"
+              (click)="openModal()"
               class="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-all"
             >
               <fa-icon [icon]="faPlus"></fa-icon>
@@ -206,8 +203,7 @@
   </div>
 </div>
 
-
-
+<!-- Modal -->
 @if (showModal()) {
   <div class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 p-4">
     <div
@@ -232,106 +228,96 @@
         </button>
       </div>
 
-     <form [formGroup]="form" (ngSubmit)="submit()" class="p-4 md:p-6 space-y-4 md:space-y-6">
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
-        <input formControlName="nombre" placeholder="Nombre de la urbanización"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-        @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
-        <p class="text-red-500 text-xs mt-1">El nombre es requerido</p>
-        }
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Ubicación</label>
-        <input formControlName="ubicacion" placeholder="Ubicación"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-        @if (form.get('ubicacion')?.invalid && form.get('ubicacion')?.touched) {
-        <p class="text-red-500 text-xs mt-1">La ubicación es requerida</p>
-        }
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Ciudad</label>
-        <input formControlName="ciudad" placeholder="Ej: Tarija - Cercado"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-        @if (form.get('ciudad')?.invalid && form.get('ciudad')?.touched) {
-        <p class="text-red-500 text-xs mt-1">La ciudad es requerida</p>
-        }
-      </div>
-
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Sede</label>
-        <select formControlName="sedeId"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
-          <option [value]="null">Seleccionar sede (opcional)</option>
-          @for (sede of sedesList(); track sede.id) {
-          <option [value]="sede.id">{{ sede.nombre }}</option>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="p-4 md:p-6 space-y-4 md:space-y-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Nombre</label>
+          <input formControlName="nombre" placeholder="Nombre de la urbanización"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+          @if (form.get('nombre')?.invalid && form.get('nombre')?.touched) {
+            <p class="text-red-500 text-xs mt-1">El nombre es requerido</p>
           }
-        </select>
-      </div>
+        </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Superficie Total (m²)</label>
-        <input type="number" step="0.01" formControlName="superficieTotal" placeholder="Superficie total"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-      </div>
-<!-- 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Estado</label>
-        <select formControlName="estado"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
-          <option value="VENTA">Venta</option>
-          <option value="PRE_VENTA">Pre-Venta</option>
-          <option value="POST_VENTA">Post-Venta</option>
-        </select>
-      </div> -->
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Ubicación</label>
+          <input formControlName="ubicacion" placeholder="Ubicación"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+          @if (form.get('ubicacion')?.invalid && form.get('ubicacion')?.touched) {
+            <p class="text-red-500 text-xs mt-1">La ubicación es requerida</p>
+          }
+        </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Norte</label>
-        <input formControlName="colindanciaNorte" placeholder="Colindancia Norte"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-      </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Ciudad</label>
+          <input formControlName="ciudad" placeholder="Ej: Tarija - Cercado"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+          @if (form.get('ciudad')?.invalid && form.get('ciudad')?.touched) {
+            <p class="text-red-500 text-xs mt-1">La ciudad es requerida</p>
+          }
+        </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Este</label>
-        <input formControlName="colindanciaEste" placeholder="Colindancia Este"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-      </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Sede</label>
+          <select formControlName="sedeId"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200">
+            <option [value]="null">Seleccionar sede (opcional)</option>
+            @for (sede of sedesList(); track sede.id) {
+              <option [value]="sede.id">{{ sede.nombre }}</option>
+            }
+          </select>
+        </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Sur</label>
-        <input formControlName="colindanciaSur" placeholder="Colindancia Sur"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-      </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Superficie Total (m²)</label>
+          <input type="number" step="0.01" formControlName="superficieTotal" placeholder="Superficie total"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Oeste</label>
-        <input formControlName="colindanciaOeste" placeholder="Colindancia Oeste"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-      </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Norte</label>
+          <input formControlName="colindanciaNorte" placeholder="Colindancia Norte"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">URL de Google Maps</label>
-        <input type="url" formControlName="maps" placeholder="https://maps.google.com/?q=latitud,longitud"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
-        <p class="mt-1 text-xs text-gray-500">Ingrese la URL completa de Google Maps (opcional)</p>
-      </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Este</label>
+          <input formControlName="colindanciaEste" placeholder="Colindancia Este"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-700 mb-2">Descripción</label>
-        <textarea formControlName="descripcion" placeholder="Descripción (opcional)"
-          class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"></textarea>
-      </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Sur</label>
+          <input formControlName="colindanciaSur" placeholder="Colindancia Sur"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        </div>
 
-      <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
-        <button type="button" (click)="cancelEdit()"
-          class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 font-semibold">Cancelar</button>
-        <button type="submit"
-          class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 font-semibold">Crear
-          Urbanización</button>
-      </div>
-    </form>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Colindancia Oeste</label>
+          <input formControlName="colindanciaOeste" placeholder="Colindancia Oeste"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">URL de Google Maps</label>
+          <input type="url" formControlName="maps" placeholder="https://maps.google.com/?q=latitud,longitud"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200" />
+          <p class="mt-1 text-xs text-gray-500">Ingrese la URL completa de Google Maps (opcional)</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Descripción</label>
+          <textarea formControlName="descripcion" placeholder="Descripción (opcional)"
+            class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 transition-all duration-200"></textarea>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-end gap-3 mt-6 md:mt-8 pt-4 md:pt-6 border-t">
+          <button type="button" (click)="cancelEdit()"
+            class="flex items-center justify-center gap-2 bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 font-semibold">Cancelar</button>
+          <button type="submit"
+            class="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-3 rounded-lg shadow-md transition-all duration-200 transform hover:scale-105 font-semibold">Crear
+            Urbanización</button>
+        </div>
+      </form>
     </div>
   </div>
 }

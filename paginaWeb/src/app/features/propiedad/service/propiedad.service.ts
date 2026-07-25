@@ -1,4 +1,3 @@
-// src/app/modules/propiedades/services/propiedad.service.ts
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, Observable } from 'rxjs';
@@ -7,13 +6,13 @@ import { environment } from '../../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PropiedadService {
-  private baseUrl = environment.apiUrl + '/propiedades';
+  private baseUrl = environment.apiUrl + '/public/propiedades';
 
   constructor(private http: HttpClient) {}
 
   getAll(): Observable<Propiedad[]> {
     return this.http
-      .get<{ success: boolean; data: any[] }>(`${this.baseUrl}/publicas/todas`)
+      .get<{ success: boolean; data: any[] }>(`${this.baseUrl}/todas`)
       .pipe(map((response) => this.mapearPropiedades(response.data)));
   }
 
@@ -21,12 +20,6 @@ export class PropiedadService {
     return this.http
       .get<{ success: boolean; data: any }>(`${this.baseUrl}/uuid/${uuid}`)
       .pipe(map((response) => this.mapearPropiedad(response.data)));
-  }
-
-  filtrar(filtros: any): Observable<Propiedad[]> {
-    return this.http
-      .post<{ success: boolean; data: any[] }>(`${this.baseUrl}/filtrar`, filtros)
-      .pipe(map((response) => this.mapearPropiedades(response.data)));
   }
 
   getPorTipo(tipo: string): Observable<Propiedad[]> {

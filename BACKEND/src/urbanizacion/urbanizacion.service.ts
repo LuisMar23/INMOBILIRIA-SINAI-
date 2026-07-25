@@ -66,7 +66,6 @@ export class UrbanizacionService {
           maps: createUrbanizacionDto.maps,
           sedeId: createUrbanizacionDto.sedeId,
           superficieTotal: createUrbanizacionDto.superficieTotal,
-     
           colindanciaNorte: createUrbanizacionDto.colindanciaNorte,
           colindanciaEste: createUrbanizacionDto.colindanciaEste,
           colindanciaSur: createUrbanizacionDto.colindanciaSur,
@@ -358,5 +357,57 @@ export class UrbanizacionService {
         message: 'Urbanización eliminada correctamente',
       };
     });
+  }
+
+  // ----- NUEVOS MÉTODOS PÚBLICOS -----
+  async findAllPublic() {
+    const urbanizaciones = await this.prisma.urbanizacion.findMany({
+      include: {
+        archivos: true,
+        sede: { select: { id: true, nombre: true } },
+        _count: { select: { lotes: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return {
+      success: true,
+      data: urbanizaciones,
+    };
+  }
+
+  async findOneUUIDPublic(uuid: string) {
+    const urbanizacion = await this.prisma.urbanizacion.findUnique({
+      where: { uuid },
+      include: {
+        archivos: true,
+        sede: true,
+        lotes: {
+          include: {
+            archivos: true,
+            _count: {
+              select: {
+                cotizaciones: true,
+                ventas: true,
+                reservas: true,
+                archivos: true,
+              },
+            },
+          },
+        },
+        _count: { select: { lotes: true } },
+      },
+    });
+
+    if (!urbanizacion) {
+      throw new NotFoundException(
+        `Urbanización con UUID ${uuid} no encontrada`,
+      );
+    }
+
+    return {
+      success: true,
+      data: urbanizacion,
+    };
   }
 }
